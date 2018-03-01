@@ -22,7 +22,7 @@
 		"webNavigation"
 	],
 	"background": {
-		"scripts": ["background-rewrite.js"]
+		"scripts": ["background.js"]
 	},
 	"content_scripts": [{
 		"run_at": "document_end",

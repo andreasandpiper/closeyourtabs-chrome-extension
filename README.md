@@ -36,5 +36,5 @@
 ## Acknowledgments
 
 * Learning Fuze Web Development Bootcamp
-* Scott Bowler - For guidance and wisdom and great jokes
-* Tim Horist - For being a wonderful resource, often better than Google
+* Scott Bowler - For guidance, wisdom and great jokes
+* Tim Horist - For helping us discover solutions

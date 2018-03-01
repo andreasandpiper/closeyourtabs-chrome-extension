@@ -294,32 +294,30 @@ chrome.runtime.onMessage.addListener(
             if (!user.loggedIn) {
                 user.login();
             }
+        } else if (request.type == "removeTab") {
+            var window = request.data.window;
+            var index = request.data.index;
+            var tabID = user.tabsSortedByWindow[window][index].id;
+            if (tabID >= 0) {
+                chrome.tabs.remove(tabID);
+                sendResponse({
+                    success: true
+                })
+            } else {
+                sendResponse({
+                    success: false
+                })
+            }
+
+        } else if (request.type == "logoutUser") {
+            if (user.loggedIn) {
+                user.logout();
+            }
+        } else if (request.type === "checkLogin") {
+            if (!user.loggedIn) {
+                user.login();
+            }
         }
-
-        // if (request.type == "removeTab") {
-        //     var window = request.data.window;
-        //     var index = request.data.index;
-        //     var tabID = user.tabsSortedByWindow[window][index].id;
-        //     if (tabID >= 0) {
-        //         chrome.tabs.remove(tabID);
-        //         sendResponse({
-        //             success: true
-        //         })
-        //     } else {
-        //         sendResponse({
-        //             success: false
-        //         })
-        //     }
-
-        // } else if (request.type == "logoutUser") {
-        //     if (user.loggedIn) {
-        //         user.logout();
-        //     }
-        // } else if (request.type === "checkLogin") {
-        //     if (!user.loggedIn) {
-        //         user.login();
-        //     }
-        // }
     });
 
 
@@ -359,6 +357,8 @@ chrome.runtime.onConnect.addListener(function (port) {
                     sessionInfo: responseObject
                 });
             })
+        } else if (message.type === 'logout') {
+            user.logout();
         }
     });
 });
@@ -623,6 +623,7 @@ function requestToServerNoData(method, route) {
         if (xhr.readyState == 4) {
             if (xhr.status === 200) {
                 var result = JSON.parse(xhr.responseText);
+                console.log('success delete', result)
             } else {
                 user.logout();
                 console.log('no server')

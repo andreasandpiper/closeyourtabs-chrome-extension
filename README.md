@@ -26,11 +26,11 @@
 
 ## Authors
 
-**Andrea Wayte** 
-**Kelcey Lorenzo** 
-**Nick Quan** 
-**James Kirsch** 
-**Henry Moon** 
+>Andrea Wayte
+>Kelcey Lorenzo
+>Nick Quan
+>James Kirsch
+>Henry Moon 
 
 
 ## Acknowledgments

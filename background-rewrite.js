@@ -100,6 +100,7 @@ class User {
  */
 chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
     console.log('removed: ', removeInfo)
+    removeTab(id, removeInfo.windowId)
 })
 
 /**
@@ -331,6 +332,9 @@ function getAllTabs() {
 
 function updatePreviousActiveTab(windowId) {
     var previousActiveIndex = user.activeTabIndex[windowId];
+    if (previousActiveIndex === null) {
+        return;
+    }
     var allTabs = user.tabsSortedByWindow[windowId];
     allTabs[previousActiveIndex].highlighted = false;
     allTabs[previousActiveIndex].timeOfDeactivation = getTimeStamp();
@@ -354,5 +358,28 @@ function updateIndex(beginIndex, endIndex, windowID) {
 
     for (var index = beginIndex; index < endIndex; index++) {
         user.tabsSortedByWindow[windowID][index].index = index;
+    }
+}
+
+function removeTab(id, windowId) {
+    var tabArray = user.tabsSortedByWindow[windowId];
+    for (var tabIndex = 0; tabIndex < tabArray.length; tabIndex++) {
+        if (tabArray[tabIndex].id === id) {
+            var tabToRemoveInfo = user.tabsSortedByWindow[windowId][tabIndex];
+            var indexOfId = user.tabIds[windowId].indexOf(tabToRemoveInfo.id);
+            user.tabIds[windowId].splice(indexOfId, 1);
+            user.tabsSortedByWindow[windowId].splice(tabIndex, 1);
+
+            if (tabToRemoveInfo.highlighted) {
+                user.activeTabIndex[windowId] = null;
+            }
+
+            if (tabIndex < tabArray.length) {
+                updateIndex(tabIndex, tabArray.length, windowId)
+            } else {
+                user.tabsSortedByWindow[windowId].pop();
+            }
+            break;
+        }
     }
 }

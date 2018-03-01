@@ -81,7 +81,9 @@ class User {
         for (var window in this.tabsSortedByWindow) {
             for (var tab in this.tabsSortedByWindow[window]) {
                 var currentTab = this.tabsSortedByWindow[window][tab];
-                createNewTabRequest(currentTab);
+                var dataForServer = dataObjectForNewTab(currentTab);
+                createNewTabRequest(dataForServer, currentTab.index);
+
             }
         }
     }
@@ -114,9 +116,19 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
         console.log('updated: ', tab)
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-            createNewTab(tab);
+            var createdTab = createNewTab(tab);
+
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForNewTab(createdTab);
+                createNewTabRequest(dataForServer, createdTab.index);
+            }
         } else {
-            updateTab(tab);
+            var updatedTab = updateTab(tab);
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForUpdatedTab(updatedTab);
+                sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
+            }
+
         }
 
     }
@@ -139,12 +151,20 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
 
     chrome.tabs.get(hightlightInfo.tabIds[0], function (tab) {
+        if (!user.tabsSortedByWindow[tab.windowId]) {
+            return;
+        }
         updatePreviousActiveTab(tab.windowId);
         user.activeTabIndex[tab.windowId] = tab.index;
         console.log('highlighted: ', tab)
         var tabWindowArray = user.tabsSortedByWindow[window.id];
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-            createNewTab(tab);
+            var createdTab = createNewTab(tab);
+
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForNewTab(createdTab);
+                createNewTabRequest(dataForServer, createdTab.index);
+            }
         } else if (user.tabsSortedByWindow[tab.windowId][tab.index]) {
             user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
         }
@@ -271,7 +291,38 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
  *@param {function} sendResponse
  */
 chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {});
+    function (request, sender, sendResponse) {
+        if (request.type === "checkLogin") {
+            if (!user.loggedIn) {
+                user.login();
+            }
+        }
+
+        // if (request.type == "removeTab") {
+        //     var window = request.data.window;
+        //     var index = request.data.index;
+        //     var tabID = user.tabsSortedByWindow[window][index].id;
+        //     if (tabID >= 0) {
+        //         chrome.tabs.remove(tabID);
+        //         sendResponse({
+        //             success: true
+        //         })
+        //     } else {
+        //         sendResponse({
+        //             success: false
+        //         })
+        //     }
+
+        // } else if (request.type == "logoutUser") {
+        //     if (user.loggedIn) {
+        //         user.logout();
+        //     }
+        // } else if (request.type === "checkLogin") {
+        //     if (!user.loggedIn) {
+        //         user.login();
+        //     }
+        // }
+    });
 
 
 /**
@@ -296,6 +347,16 @@ chrome.runtime.onConnect.addListener(function (port) {
                         lastFocused = window[array].id;
                     }
                 }
+                port.postMessage({
+                    sessionInfo: responseObject
+                });
+            })
+        } else if (message.type === 'refresh') {
+            chrome.windows.getLastFocused(function (window) {
+                var responseObject = {};
+                responseObject.userStatus = user.loggedIn;
+                responseObject.allTabs = user.tabsSortedByWindow;
+                responseObject.currentWindow = lastFocused;
                 port.postMessage({
                     sessionInfo: responseObject
                 });
@@ -347,6 +408,7 @@ function createNewTab(tab) {
         tabWindowArray.push(tabObject);
     }
 
+    return tabObject;
 }
 
 
@@ -372,6 +434,8 @@ function updateTab(tab) {
     }
 
     user.tabsSortedByWindow[tab.windowId][tab.index] = updatedInfo;
+
+    return updatedInfo;
 }
 
 function createNewUser() {
@@ -382,7 +446,7 @@ function createNewUser() {
         });
     });
     getAllTabs();
-    // user.login();
+    user.login();
 }
 
 /**
@@ -474,5 +538,150 @@ function updatedElaspedDeactivation() {
             }
         }
     }
-    // setBadgeNumber(overdueTabCount);
+    setBadgeNumber(overdueTabCount);
+}
+
+/**
+ * Sets new badge number on extension icon
+ *@param {integer} number
+ */
+function setBadgeNumber(number) {
+    if (number > 0) {
+        chrome.browserAction.setBadgeText({
+            text: number.toString()
+        });
+        chrome.browserAction.setBadgeBackgroundColor({
+            color: '#FF0000'
+        });
+    } else {
+        chrome.browserAction.setBadgeText({
+            text: ''
+        });
+    }
+}
+
+/**
+ *Deletes user information from database
+ */
+function clearPreviousTabData() {
+    requestToServerNoData('DELETE', `${BASE_URL}/tabs/google`);
+}
+
+
+/**
+ * basic request to server in which the return callback does not need to do anything
+ *@param {string} method types of request, ex. get, post, etc
+ *@param {string} action the target route on the server
+ *@param {object} data the data that will be sent
+ */
+function sendDataToServer(method, action, data) {
+    if (data === null) {
+        return;
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, action);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            if (xhr.status === 200) {
+                console.log(xhr.responseText);
+            } else {
+                user.logout();
+                console.log('connect error');
+            }
+        }
+    };
+    xhr.onerror = function () {
+        user.logout();
+        console.log('connect error');
+    };
+    xhr.send(JSON.stringify(data));
+}
+
+/**
+ * Get request to receive all tabs of user from database
+ */
+function requestToServerNoData(method, route) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, route, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            if (xhr.status === 200) {
+                var result = JSON.parse(xhr.responseText);
+            } else {
+                user.logout();
+                console.log('no server')
+            }
+        }
+    };
+    xhr.onerror = function () {
+        user.logout();
+        console.log('connect error');
+    };
+    xhr.send();
+}
+
+
+/**
+ * POST request for new tab, saves tabId to user, activates tab when completed
+ *@param {object} tabObject the data that will be sent
+ */
+function createNewTabRequest(tabObject, index) {
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', `${BASE_URL}/tabs`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            if (xhr.status === 200) {
+                var result = JSON.parse(xhr.responseText)
+                if (result.success) {
+                    console.log('server connect', xhr.responseText)
+                    var result = JSON.parse(xhr.responseText).data.insertId;
+                    var tabObj = user.tabsSortedByWindow[tabObject.windowID][index];
+                    user.tabsSortedByWindow[tabObject.windowID][index] = { ...tabObj,
+                        databaseTabID: result
+                    };
+                    // if (tabObject.highlighted) {
+                    // 	activateTimeTab(result);
+                    // } else {
+                    // 	deactivateTimeTab(result)
+                    // }
+
+                } else {
+                    user.logout();
+                    console.log('server connect fail', xhr.responseText)
+                }
+            }
+        }
+    };
+    xhr.onerror = function () {
+        user.logout();
+        console.log('connect error');
+    };
+    xhr.send(JSON.stringify(tabObject));
+}
+
+function dataObjectForNewTab(tab) {
+    var dataForServer = {
+        windowID: tab.windowId,
+        tabTitle: tab.title,
+        activatedTime: 0,
+        deactivatedTime: 0,
+        browserTabIndex: tab.index,
+        url: tab.url,
+        favicon: tab.favIconUrl
+    };
+    return dataForServer;
+}
+
+function dataObjectForUpdatedTab(tab) {
+    var dataForServer = {
+        databaseTabID: tab.databaseTabID,
+        tabTitle: tab.title,
+        browserTabIndex: tab.index,
+        url: tab.url,
+        favicon: tab.favicon,
+    }
+    return dataForServer;
 }

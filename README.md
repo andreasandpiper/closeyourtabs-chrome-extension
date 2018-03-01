@@ -1,4 +1,4 @@
-#Close Your Tabs - Chrome Extension
+# Close Your Tabs - Chrome Extension
 
 >A Chrome Extension that monitors the amount of time each tab has been inactive. The extension incorporates a popup window which displays all of the users tabs from all browser windows and color codes them depending on amount of inactive time. 
 
@@ -26,11 +26,11 @@
 
 ## Authors
 
->**Andrea Wayte** 
->**Kelcey Lorenzo** 
->**Nick Quan** 
->**James Kirsch** 
->**Henry Moon** 
+**Andrea Wayte** 
+**Kelcey Lorenzo** 
+**Nick Quan** 
+**James Kirsch** 
+**Henry Moon** 
 
 
 ## Acknowledgments

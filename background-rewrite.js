@@ -112,6 +112,9 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
         console.log('updated: ', tab)
+        if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
+            createNewTab(tab);
+        }
 
     }
 })
@@ -291,7 +294,7 @@ function createNewTab(tab) {
         user.activeTabIndex[tab.windowId] = tab.index;
     }
 
-    if (tab.index < tabWindowArray.length - 1) {
+    if (tab.index < tabWindowArray.length) {
         console.log('splice in')
         tabWindowArray.splice(tab.index, 0, tabObject);
         updateIndex(tab.index + 1, user.tabsSortedByWindow[tab.windowId].length, tab.windowId);

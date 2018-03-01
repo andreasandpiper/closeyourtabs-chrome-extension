@@ -115,6 +115,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         console.log('updated: ', tab)
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
             createNewTab(tab);
+        } else {
+            updateTab(tab);
         }
 
     }
@@ -345,6 +347,31 @@ function createNewTab(tab) {
         tabWindowArray.push(tabObject);
     }
 
+}
+
+
+/**
+
+* Updates a Tab object and returns an object to send to server 
+*@param {object} tab 
+*@return {object} dataForServer
+*/
+
+function updateTab(tab) {
+    //if the site changed, get the elapsed time during active state and save to its url
+    var currentInfo = user.tabsSortedByWindow[tab.windowId][tab.index];
+    var updatedInfo = { ...currentInfo,
+        id: tab.id,
+        windowId: tab.windowId,
+        favicon: tab.favIconUrl,
+        title: tab.title,
+        url: tab.url,
+        screenshot: tab.screenshot,
+        index: tab.index,
+        highlighted: tab.highlighted
+    }
+
+    user.tabsSortedByWindow[tab.windowId][tab.index] = updatedInfo;
 }
 
 function createNewUser() {

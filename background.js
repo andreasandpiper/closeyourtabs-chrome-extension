@@ -364,6 +364,11 @@ chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
 	if (user.activeTabIndex[detachInfo.oldWindowId] === detachInfo.oldPosition) {
 		user.activeTabIndex[detachInfo.oldWindowId] = null;
 	}
+	if (user.loggedIn) {
+		var tabObject = {};
+		tabObject['databaseTabID'] = tab.databaseTabID;
+		sendDataToServer('DELETE', `${BASE_URL}/tabs/database`, tabObject);
+	}
 	updateIndex(detachInfo.oldPosition, user.tabsSortedByWindow[detachInfo.oldWindowId].length - 1, detachInfo.oldWindowId);
 })
 

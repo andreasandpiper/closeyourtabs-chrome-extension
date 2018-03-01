@@ -143,6 +143,8 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
         var tabWindowArray = user.tabsSortedByWindow[window.id];
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
             createNewTab(tab);
+        } else {
+            user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
         }
 
     })
@@ -158,6 +160,17 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
 */
 chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
     console.log('moved: ', moveInfo)
+    var tab = user.tabsSortedByWindow[moveInfo.windowId][moveInfo.fromIndex];
+    user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.fromIndex, 1);
+    user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.toIndex, 0, tab);
+    user.activeTabIndex[tab.windowId] = moveInfo.toIndex;
+
+    if (moveInfo.fromIndex > moveInfo.toIndex) {
+        updateIndex(moveInfo.toIndex, moveInfo.fromIndex, moveInfo.windowId);
+    } else {
+        updateIndex(moveInfo.fromIndex, moveInfo.toIndex + 1, moveInfo.windowId);
+
+    }
 
 })
 

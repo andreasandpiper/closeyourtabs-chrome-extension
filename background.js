@@ -11,8 +11,12 @@ class User {
 		this.tabsSortedByWindow = {};
 		this.activeTabIndex = {};
 		this.tabIds = {};
-		this.name = '',
-			this.photo = ''
+		this.name = '';
+		this.photo = '';
+		this.detachedTabInfo = {
+			windowId: null,
+			uniqueId: null
+		};
 	}
 	login() {
 		if (user.loggedIn) {
@@ -130,9 +134,6 @@ function createNewTab(tab, currentTime) {
 	var tabArray = user.tabsSortedByWindow[tab.windowId];
 	if (tabObject.index < tabArray.length) {
 		var currentActiveTab = user.activeTabIndex[tab.windowId];
-		// if (tab.index <= currentActiveTab) {
-		// 	user.activeTabIndex[tabObject.windowId]--;
-		// }
 		user.tabsSortedByWindow[tabObject.windowId].splice(tabObject.index, 0, tabObject);
 		var nextIndex = tab.index + 1;
 		updateIndex(nextIndex, (user.tabsSortedByWindow[tabObject.windowId].length - 1), tabObject.windowId);
@@ -214,7 +215,7 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 	}
 
 	updatedElaspedDeactivation();
-	getCurrentHighlighted();
+	updateCurrentActiveIndex();
 
 });
 
@@ -277,6 +278,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 				var newTab = createNewTab(tab, timeStamp);
 			}
 		})
+		updateCurrentActiveIndex();
 	}
 })
 
@@ -302,19 +304,21 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
 
 	chrome.tabs.get(hightlightInfo.tabIds[0], function (tab) {
 		var timeStamp = getTimeStamp();
-		updatePreviousHighlightedTab(user.activeTabIndex[tab.windowId], tab.windowId, timeStamp, );
 
-		getCurrentHighlighted();
-		// user.activeTabIndex[tab.windowId] = tab.index;
-		// user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
+		updateCurrentActiveIndex();
+		if (user.tabIds[tab.windowId].length === 0) {
+			var timeStamp = getTimeStamp();
+			tab.databaseTabID = user.detachedTabInfo.uniqueId;
+			user.detachedTabInfo = {
+				windowId: null,
+				uniqueId: null
+			};
+			var newTab = createNewTab(tab, timeStamp);
+			if (user.loggedIn) {
+				createNewTabRequest(newTab);
+			}
 
-		// if (user.tabsSortedByWindow[tab.windowId].length !== user.tabIds[tab.windowId].length) {
-		// 	var timeStamp = getTimeStamp();
-		// 	var newTab = createNewTab(tab, timeStamp);
-		// 	if (user.loggedIn) {
-		// 		createNewTabRequest(newTab);
-		// 	}
-		// } else 
+		}
 		if (user.tabIds[tab.windowId].indexOf(tab.id) !== -1) {
 			if (user.loggedIn) {
 				activateTimeTab(user.tabsSortedByWindow[tab.windowId][tab.index].databaseTabID);
@@ -354,6 +358,7 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
 	var tab = user.tabsSortedByWindow[detachInfo.oldWindowId][detachInfo.oldPosition];
 	var tabIDIndex = user.tabIds[detachInfo.oldWindowId].indexOf(tab.id);
+	user.detachedTabInfo.uniqueId = tab.databaseTabID;
 	user.tabIds[detachInfo.oldWindowId].splice(tabIDIndex, 1);
 	user.tabsSortedByWindow[detachInfo.oldWindowId].splice(detachInfo.oldPosition, 1);
 	if (user.activeTabIndex[detachInfo.oldWindowId] === detachInfo.oldPosition) {
@@ -362,13 +367,16 @@ chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
 	updateIndex(detachInfo.oldPosition, user.tabsSortedByWindow[detachInfo.oldWindowId].length - 1, detachInfo.oldWindowId);
 })
 
+
 /**
  * Listens for when a tab is attached to window 
  *@param {integer} tabId 
  *@param {object} detachInfo  newPosition, newWindowId
  */
 chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
-	user.tabIds[attachInfo.newWindowId].push(tabId);
+	if (user.tabIds[attachInfo.newWindowId].indexOf(tabId) === -1) {
+		user.tabIds[attachInfo.newWindowId].push(tabId);
+	}
 })
 
 /**
@@ -753,6 +761,10 @@ chrome.runtime.onMessage.addListener(
 		}
 	});
 
+/**
+ * Listens for when an open link even from the popup and only run content script in dashboard
+ *@param {object} details
+ */
 chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
 	if (details.url === 'http://www.closeyourtabs.com/dashboard' || details.url === 'http://www.closeyourtabs.com/dashboard#') {
 		chrome.tabs.executeScript(null, {
@@ -761,40 +773,29 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
 	}
 });
 
-function getCurrentHighlighted() {
+/**
+ * gets the current highlighted tabs. updates active tab index and sets previous active to false 
+ */
+function updateCurrentActiveIndex() {
 	chrome.tabs.query({
-		highlighted: true
+		highlighted: true,
+		currentWindow: true
 	}, function (tabs) {
 		for (var index = 0; index < tabs.length; index++) {
 			var tab = tabs[index];
-			var allTabs = user.tabsSortedByWindow[windowId];
+			var allTabs = user.tabsSortedByWindow[tab.windowId];
 			var previousActiveIndex = user.activeTabIndex[tab.windowId];
 			var timeStamp = getTimeStamp();
-			if (previousActiveIndex !== tab.index && previousActiveIndex !== null) {
-				user.tabsSortedByWindow[tab.windowId][previousActiveIndex].highlighted = false;
+			console.log(tab)
+			if (previousActiveIndex !== tab.index && previousActiveIndex !== null && allTabs[previousActiveIndex]) {
 				if (user.loggedIn) {
 					deactivateTimeTab(allTabs[previousActiveIndex].databaseTabID);
 				}
-				allTabs[previousIndex].timeOfDeactivation = timeStamp;
+				allTabs[previousActiveIndex].highlighted = false;
+				allTabs[previousActiveIndex].timeOfDeactivation = timeStamp;
 			}
 			user.activeTabIndex[tab.windowId] = tab.index;
-			user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
+			allTabs[tab.index].highlighted = true;
 		}
 	})
 }
-
-// /**
-//  * Takes previous highlighted tab and sets time of deactivation
-//  *@param {integer} uniqueID
-//  *call sendDataToServer
-//  */
-// function updatePreviousHighlightedTab(previousIndex, windowId, timeStamp) {
-// 	if (previousIndex === null) {
-// 		return;
-// 	}
-
-// 	if (allTabs[previousIndex]) {
-// 		allTabs[previousIndex].highlighted = false;
-// 		allTabs[previousIndex].timeOfDeactivation = timeStamp;
-// 	}
-// }

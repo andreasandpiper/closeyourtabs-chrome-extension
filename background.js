@@ -374,6 +374,7 @@ chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
  *@param {object} detachInfo  newPosition, newWindowId
  */
 chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
+	newWindowForUser(attachInfo.newWindowId);
 	if (user.tabIds[attachInfo.newWindowId].indexOf(tabId) === -1) {
 		user.tabIds[attachInfo.newWindowId].push(tabId);
 	}
@@ -662,7 +663,7 @@ function newExtensionSession() {
 	user = new User();
 	chrome.windows.getAll(function (windows) {
 		windows.forEach(function (window) {
-			newWindowForUser(window);
+			newWindowForUser(window.id);
 		});
 	});
 	getAllTabs();
@@ -671,12 +672,14 @@ function newExtensionSession() {
 
 /**
  * clears local storage of any previous windows and creates an instance of user session
- *@param {object} window window object
+ *@param {object} windowId window object
  */
-function newWindowForUser(window) {
-	user.tabsSortedByWindow[window.id] = [];
-	user.activeTabIndex[window.id] = null;
-	user.tabIds[window.id] = [];
+function newWindowForUser(windowId) {
+	if (!user.tabsSortedByWindow[windowId]) {
+		user.tabsSortedByWindow[windowId] = [];
+		user.activeTabIndex[windowId] = null;
+		user.tabIds[windowId] = [];
+	}
 }
 
 /**
@@ -706,7 +709,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
  *calls newWindowForUser
  */
 chrome.windows.onCreated.addListener(function (window) {
-	newWindowForUser(window);
+	newWindowForUser(window.id);
 });
 
 /**
@@ -778,8 +781,7 @@ chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
  */
 function updateCurrentActiveIndex() {
 	chrome.tabs.query({
-		highlighted: true,
-		currentWindow: true
+		highlighted: true
 	}, function (tabs) {
 		for (var index = 0; index < tabs.length; index++) {
 			var tab = tabs[index];

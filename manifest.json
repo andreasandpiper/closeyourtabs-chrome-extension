@@ -22,12 +22,11 @@
 		"webNavigation"
 	],
 	"background": {
-		"scripts": ["background.js"]
+		"scripts": ["background-rewrite.js"]
 	},
-	"content_scripts": [
-		{
-			"run_at" :"document_end",
-			"matches": ["http://localhost:5000/*", "http://localhost:3000/*",	"http://www.closeyourtabs.com/dashboard", "http://www.closeyourtabs.com/dashboard#"],
-			"js": ["dashboard.js"]		}
-	]
+	"content_scripts": [{
+		"run_at": "document_end",
+		"matches": ["http://localhost:5000/*", "http://localhost:3000/*", "http://www.closeyourtabs.com/dashboard", "http://www.closeyourtabs.com/dashboard#"],
+		"js": ["dashboard.js"]
+	}]
 }

@@ -186,6 +186,10 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
     user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.fromIndex, 1);
     user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.toIndex, 0, tab);
     user.activeTabIndex[tab.windowId] = moveInfo.toIndex;
+    if (user.loggedIn) {
+        var dataForServer = dataObjectForUpdatedTab(user.tabsSortedByWindow[moveInfo.windowId][moveInfo.toIndex]);
+        sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
+    }
 
     if (moveInfo.fromIndex > moveInfo.toIndex) {
         updateIndex(moveInfo.toIndex, moveInfo.fromIndex, moveInfo.windowId);
@@ -491,8 +495,14 @@ function updateIndex(beginIndex, endIndex, windowID) {
 
     for (var index = beginIndex; index < endIndex; index++) {
         user.tabsSortedByWindow[windowID][index].index = index;
+
         if (user.tabsSortedByWindow[windowID][index].highlighted) {
             user.activeTabIndex[windowID] = index;
+        }
+
+        if (user.loggedIn) {
+            var dataForServer = dataObjectForUpdatedTab(user.tabsSortedByWindow[windowID][index]);
+            sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
         }
     }
 }

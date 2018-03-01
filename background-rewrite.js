@@ -55,7 +55,6 @@ class User {
             if (result.name === COOKIE_NAME) {
                 console.log('success logout');
                 user.changeBrowserIcon('images/iconpurple.png')
-                console.log(user)
                 if (user.loggedIn) {
                     clearPreviousTabData();
                     user.loggedIn = false;
@@ -101,8 +100,8 @@ class User {
  *@param {object} removeInfo windowid
  */
 chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
-    console.log('removed: ', removeInfo)
-    removeTab(id, removeInfo.windowId)
+    console.log('removed: ', removeInfo);
+    removeTab(id, removeInfo.windowId);
 })
 
 /**
@@ -114,7 +113,7 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
-        console.log('updated: ', tab)
+        console.log('updated: ', changeInfo)
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
             var createdTab = createNewTab(tab);
 
@@ -133,14 +132,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
     }
 })
-
-
-// chrome.tabs.onCreated.addListener(function (tab) {
-//     createNewTab(tab);
-
-// })
-
-
 
 
 /**
@@ -167,6 +158,9 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
             }
         } else if (user.tabsSortedByWindow[tab.windowId][tab.index]) {
             user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
+            if (user.loggedIn) {
+                activateTimeTab(user.tabsSortedByWindow[tab.windowId][tab.index].databaseTabID);
+            }
         }
 
     })
@@ -475,6 +469,10 @@ function updatePreviousActiveTab(windowId) {
     var allTabs = user.tabsSortedByWindow[windowId];
     allTabs[previousActiveIndex].highlighted = false;
     allTabs[previousActiveIndex].timeOfDeactivation = getTimeStamp();
+    if (user.loggedIn) {
+        deactivateTimeTab(allTabs[previousActiveIndex].databaseTabID);
+
+    }
 }
 
 /**
@@ -523,6 +521,13 @@ function removeTab(id, windowId) {
             if (tabIndex < tabArray.length) {
                 updateIndex(tabIndex, tabArray.length, windowId)
             }
+
+            if (user.loggedIn) {
+                var tabObject = {};
+                tabObject['databaseTabID'] = tabToRemoveInfo.databaseTabID;
+                sendDataToServer('DELETE', `${BASE_URL}/tabs/database`, tabObject);
+            }
+
             break;
         }
     }
@@ -597,7 +602,7 @@ function sendDataToServer(method, action, data) {
                 console.log(xhr.responseText);
             } else {
                 user.logout();
-                console.log('connect error');
+                console.log('connect error', xhr.responseText);
             }
         }
     };
@@ -652,11 +657,11 @@ function createNewTabRequest(tabObject, index) {
                     user.tabsSortedByWindow[tabObject.windowID][index] = { ...tabObj,
                         databaseTabID: result
                     };
-                    // if (tabObject.highlighted) {
-                    // 	activateTimeTab(result);
-                    // } else {
-                    // 	deactivateTimeTab(result)
-                    // }
+                    if (tabObj.highlighted) {
+                        activateTimeTab(result);
+                    } else {
+                        deactivateTimeTab(result)
+                    }
 
                 } else {
                     user.logout();
@@ -694,4 +699,28 @@ function dataObjectForUpdatedTab(tab) {
         favicon: tab.favicon,
     }
     return dataForServer;
+}
+
+/**
+ * Calls database to activate the time for tab
+ *@param {integer} uniqueID
+ *call sendDataToServer
+ */
+function activateTimeTab(uniqueID) {
+    var tabObject = {};
+    tabObject['databaseTabID'] = uniqueID;
+    sendDataToServer('PUT', `${BASE_URL}/tabs/activatedTime`, tabObject);
+}
+
+/**
+ * Calls database to deactivate the time for tab
+ *@param {integer} uniqueID 
+ *call sendDataToServer
+ */
+function deactivateTimeTab(uniqueID) {
+    if (uniqueID !== null) {
+        var tabObject = {};
+        tabObject['databaseTabID'] = uniqueID;
+        sendDataToServer('PUT', `${BASE_URL}/tabs/deactivatedTime`, tabObject)
+    }
 }

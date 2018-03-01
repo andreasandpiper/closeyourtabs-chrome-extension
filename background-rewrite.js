@@ -143,7 +143,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
         var tabWindowArray = user.tabsSortedByWindow[window.id];
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
             createNewTab(tab);
-        } else {
+        } else if (user.tabsSortedByWindow[tab.windowId][tab.index]) {
             user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
         }
 
@@ -183,6 +183,15 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
     console.log('detached: ', detachInfo)
 
+    var tabIDIndex = user.tabIds[detachInfo.oldWindowId].indexOf(tabId);
+    user.tabIds[detachInfo.oldWindowId].splice(tabIDIndex, 1);
+    user.tabsSortedByWindow[detachInfo.oldWindowId].splice(detachInfo.oldPosition, 1);
+    if (user.activeTabIndex[detachInfo.oldWindowId] === detachInfo.oldPosition) {
+        user.activeTabIndex[detachInfo.oldWindowId] = null;
+    }
+    updateIndex(detachInfo.oldPosition, user.tabsSortedByWindow[detachInfo.oldWindowId].length, detachInfo.oldWindowId);
+
+
 })
 
 
@@ -214,6 +223,9 @@ chrome.windows.onCreated.addListener(function (window) {
  */
 chrome.windows.onRemoved.addListener(function (windowId) {
     console.log('window removed: ', windowId)
+    delete user.tabsSortedByWindow[windowId];
+    delete user.activeTabIndex[windowId];
+    delete user.tabIds[windowId];
 
 });
 
@@ -371,6 +383,9 @@ function updateIndex(beginIndex, endIndex, windowID) {
 
     for (var index = beginIndex; index < endIndex; index++) {
         user.tabsSortedByWindow[windowID][index].index = index;
+        if (user.tabsSortedByWindow[windowID][index].highlighted) {
+            user.activeTabIndex[windowID] = index;
+        }
     }
 }
 
@@ -389,8 +404,6 @@ function removeTab(id, windowId) {
 
             if (tabIndex < tabArray.length) {
                 updateIndex(tabIndex, tabArray.length, windowId)
-            } else {
-                user.tabsSortedByWindow[windowId].pop();
             }
             break;
         }

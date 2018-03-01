@@ -202,7 +202,7 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
  */
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
     console.log('detached: ', detachInfo)
-
+    var tab = user.tabsSortedByWindow[detachInfo.oldWindowId][detachInfo.oldPosition];
     var tabIDIndex = user.tabIds[detachInfo.oldWindowId].indexOf(tabId);
     user.tabIds[detachInfo.oldWindowId].splice(tabIDIndex, 1);
     user.tabsSortedByWindow[detachInfo.oldWindowId].splice(detachInfo.oldPosition, 1);

@@ -21,7 +21,7 @@ a:focus {
 }
 
 .windowSpacer {
-	height: 5px; 
+	height: 5px;
 }
 
 .container {
@@ -41,15 +41,15 @@ a:focus {
 	color: lightgray;
 }
 
-.popup-title-container > img {
+.popup-title-container>img {
 	height: 75%;
-
 }
 
 #tag-titles {
 	margin: 1% 0;
 	overflow: auto;
 	position: relative;
+	height: 77%;
 }
 
 .tab-container {
@@ -69,21 +69,22 @@ a:focus {
 
 .title-container {
 	overflow: hidden;
-	text-overflow: ellipsis; 
-	white-space: nowrap; 
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	display: inline-block;
 	width: 79%;
 	padding-left: 2%;
 }
 
-.trashcan-container, .favicon-container{
+.trashcan-container,
+.favicon-container {
 	margin: 0 1%;
 	height: 100%;
 	display: inline-block;
 	width: 7%;
 }
 
-.favicon-container > img {
+.favicon-container>img {
 	height: 100%;
 }
 
@@ -95,12 +96,12 @@ a:focus {
 }
 
 a {
-	text-decoration: none; 
+	text-decoration: none;
 }
 
 #title:hover {
 	color: rgb(212, 167, 129);
-	cursor: pointer; 
+	cursor: pointer;
 }
 
 .fa-trash-alt {
@@ -111,7 +112,6 @@ a {
 .fa-trash-alt:hover {
 	color: grey;
 }
-
 
 .user-tools {
 	position: relative;
@@ -129,10 +129,10 @@ a {
 	background-color: white;
 	color: rgb(26, 54, 74);
 	text-align: center;
-    text-transform: uppercase;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 5px;
+	text-transform: uppercase;
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px;
 }
 
 .popup-button:hover {
@@ -141,7 +141,8 @@ a {
 	background-color: rgb(143, 182, 179);
 }
 
-#login, #logout {
+#login,
+#logout {
 	width: 86%;
 }
 
@@ -166,10 +167,10 @@ a {
 	display: none;
 }
 
-#webpage{
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
+#webpage {
+	justify-content: center;
+	align-items: center;
+	text-decoration: none;
 }
 
 #refresh {
@@ -193,7 +194,7 @@ a {
 	background-color: rgb(156, 95, 88);
 }
 
-.green{
+.green {
 	border: 3px solid rgb(143, 182, 179);
 }
 
@@ -201,9 +202,7 @@ a {
 	font-weight: bold;
 	padding: 5px;
 	background-color: #ffffff;
-
 }
-
 
 .active-window {
 	color: #ffffff;
@@ -211,15 +210,15 @@ a {
 }
 
 #loading-message {
-	margin-top: 20px; 
+	margin-top: 20px;
 	color: #c77373;
 	text-align: center;
 }
 
-#loading-message img{
-	width: 20%; 
+#loading-message img {
+	width: 20%;
 }
 
-#loading-message p{
-	font-weight: 600; 
+#loading-message p {
+	font-weight: 600;
 }

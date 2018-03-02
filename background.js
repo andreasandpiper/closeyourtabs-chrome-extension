@@ -220,18 +220,6 @@ chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
 
 })
 
-
-/**
- * Listens for when a tab is attached to window 
- *@param {integer} tabId 
- *@param {object} detachInfo  newPosition, newWindowId
- */
-chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
-    console.log('attached: ', attachInfo)
-
-})
-
-
 /**
  * Listens for window created
  *@param {object} window
@@ -240,7 +228,6 @@ chrome.tabs.onAttached.addListener(function (tabId, attachInfo) {
 chrome.windows.onCreated.addListener(function (window) {
     console.log('window created: ', window)
     createNewWindow(window.id);
-
 });
 
 /**
@@ -252,9 +239,7 @@ chrome.windows.onRemoved.addListener(function (windowId) {
     delete user.tabsSortedByWindow[windowId];
     delete user.activeTabIndex[windowId];
     delete user.tabIds[windowId];
-
 });
-
 
 /**
  * Runs function when first browser loads
@@ -369,7 +354,10 @@ chrome.runtime.onConnect.addListener(function (port) {
     });
 });
 
-
+/**
+ * Creates a new window in User Class
+ *@param {integer} windowId 
+ */
 function createNewWindow(windowId) {
     user.tabsSortedByWindow[windowId] = [];
     user.tabIds[windowId] = [];
@@ -418,12 +406,10 @@ function createNewTab(tab) {
 
 
 /**
-
-* Updates a Tab object and returns an object to send to server 
-*@param {object} tab 
-*@return {object} dataForServer
-*/
-
+ * Updates a Tab object and returns an object to send to server 
+ *@param {object} tab 
+ *@return {object} dataForServer
+ */
 function updateTab(tab) {
     //if the site changed, get the elapsed time during active state and save to its url
     var currentInfo = user.tabsSortedByWindow[tab.windowId][tab.index];
@@ -443,6 +429,9 @@ function updateTab(tab) {
     return updatedInfo;
 }
 
+/**
+ * Creates new instance of User
+ */
 function createNewUser() {
     user = new User();
     chrome.windows.getAll(function (windows) {
@@ -468,6 +457,10 @@ function getAllTabs() {
     });
 }
 
+/**
+ * Updates the previous active tab info in User. Sets a new time of deactivation
+ *@param {integer} windowId 
+ */
 function updatePreviousActiveTab(windowId) {
     var previousActiveIndex = user.activeTabIndex[windowId];
     if (previousActiveIndex === null) {
@@ -512,6 +505,11 @@ function updateIndex(beginIndex, endIndex, windowID) {
     }
 }
 
+/**
+ *removes tab from User arrays and deletes from database
+ *@param {integer} id
+ *@param {integer} windowId
+ */
 function removeTab(id, windowId) {
     var tabArray = user.tabsSortedByWindow[windowId];
     for (var tabIndex = 0; tabIndex < tabArray.length; tabIndex++) {
@@ -687,6 +685,11 @@ function createNewTabRequest(tabObject, index) {
     xhr.send(JSON.stringify(tabObject));
 }
 
+
+/**
+ * Creates data object to send to server to CREATE a new tab
+ *@param {object} tab the data that will be sent
+ */
 function dataObjectForNewTab(tab) {
     var dataForServer = {
         windowID: tab.windowId,
@@ -700,6 +703,10 @@ function dataObjectForNewTab(tab) {
     return dataForServer;
 }
 
+/**
+ * Creates data object to send to server to UPDATE a previous tab
+ *@param {object} tab the data that will be sent
+ */
 function dataObjectForUpdatedTab(tab) {
     var dataForServer = {
         databaseTabID: tab.databaseTabID,

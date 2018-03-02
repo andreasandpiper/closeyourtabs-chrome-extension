@@ -2,13 +2,13 @@
 	"manifest_version": 2,
 
 	"name": "Tab test",
-	"description": "Get url of tabs open",
-	"version": "1.0",
+	"description": "Tracks the amount of time elapsed since active use of each tab in all windows.",
+	"version": "0.0.1",
 
 	"browser_action": {
 		"default_icon": "images/app-logo-favicon-32.png",
 		"default_popup": "popup.html",
-		"default_title": "Fan-TAB-ilous"
+		"default_title": "Close Your Tabs"
 	},
 	"permissions": [
 		"storage",
@@ -16,8 +16,6 @@
 		"<all_urls>",
 		"http://www.closeyourtabs.com/dashboard",
 		"http://www.closeyourtabs.com/dashboard#",
-		"http://localhost:5000/*",
-		"http://localhost:3000/*",
 		"cookies",
 		"webNavigation"
 	],
@@ -26,7 +24,7 @@
 	},
 	"content_scripts": [{
 		"run_at": "document_end",
-		"matches": ["http://localhost:5000/*", "http://localhost:3000/*", "http://www.closeyourtabs.com/dashboard", "http://www.closeyourtabs.com/dashboard#"],
+		"matches": ["http://www.closeyourtabs.com/dashboard", "http://www.closeyourtabs.com/dashboard#"],
 		"js": ["dashboard.js"]
 	}]
 }

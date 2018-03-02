@@ -22,9 +22,6 @@ port.onMessage.addListener(function (response) {
 		document.getElementById('tag-titles').innerHTML = '';
 		var windows = response.sessionInfo.allTabs;
 		for (var window in windows) {
-			var windowSpacer = document.createElement('div');
-			windowSpacer.className = 'windowSpacer';
-			//document.getElementById('tag-titles').appendChild(windowSpacer);
 			var windowTabContainer = document.createElement('div');
 			windowTabContainer.className = 'window'
 

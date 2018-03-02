@@ -38,7 +38,7 @@ port.onMessage.addListener(function (response) {
 			}
 
 			if (window == response.sessionInfo.currentWindow) {
-				document.getElementById('tag-titles').append(windowTabContainer);
+				document.getElementById('tag-titles').prepend(windowTabContainer);
 			} else {
 				document.getElementById('tag-titles').appendChild(windowTabContainer);
 			}

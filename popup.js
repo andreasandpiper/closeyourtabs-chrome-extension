@@ -24,8 +24,9 @@ port.onMessage.addListener(function (response) {
 		for (var window in windows) {
 			var windowSpacer = document.createElement('div');
 			windowSpacer.className = 'windowSpacer';
-			document.getElementById('tag-titles').appendChild(windowSpacer);
+			//document.getElementById('tag-titles').appendChild(windowSpacer);
 			var windowTabContainer = document.createElement('div');
+			windowTabContainer.className = 'window'
 
 			for (var item in windows[window]) {
 				var tabInfo = windows[window][item];
@@ -40,7 +41,7 @@ port.onMessage.addListener(function (response) {
 			}
 
 			if (window == response.sessionInfo.currentWindow) {
-				document.getElementById('tag-titles').prepend(windowTabContainer);
+				document.getElementById('tag-titles').append(windowTabContainer);
 			} else {
 				document.getElementById('tag-titles').appendChild(windowTabContainer);
 			}

@@ -158,6 +158,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
             }
         } else if (user.tabsSortedByWindow[tab.windowId][tab.index]) {
             user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
+            user.tabsSortedByWindow[tab.windowId][tab.index].timeOfDeactivation = 0;
             if (user.loggedIn) {
                 activateTimeTab(user.tabsSortedByWindow[tab.windowId][tab.index].databaseTabID);
             }
@@ -335,9 +336,8 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onConnect.addListener(function (port) {
     console.assert(port.name == 'tab');
     port.onMessage.addListener(function (message) {
-        updatedElaspedDeactivation();
-
         if (message.type == 'popup') {
+            updatedElaspedDeactivation();
             var responseObject = {};
             responseObject.userStatus = user.loggedIn;
             responseObject.allTabs = user.tabsSortedByWindow;
@@ -353,6 +353,7 @@ chrome.runtime.onConnect.addListener(function (port) {
                 });
             })
         } else if (message.type === 'refresh') {
+            updatedElaspedDeactivation();
             chrome.windows.getLastFocused(function (window) {
                 var responseObject = {};
                 responseObject.userStatus = user.loggedIn;
@@ -390,8 +391,6 @@ function createNewTab(tab) {
         title: tab.title,
         url: tab.url,
         index: tab.index,
-        activeTimeElapsed: 0,
-        inactiveTimeElapsed: 0,
         screenshot: '',
         databaseTabID: '',
         highlighted: tab.highlighted
@@ -401,6 +400,9 @@ function createNewTab(tab) {
 
     if (tab.highlighted) {
         user.activeTabIndex[tab.windowId] = tab.index;
+        tabObject.timeOfDeactivation = 0;
+    } else {
+        tabObject.timeOfDeactivation = getTimeStamp();
     }
 
     if (tab.index < tabWindowArray.length) {
@@ -555,6 +557,8 @@ function updatedElaspedDeactivation() {
                 if (tab.inactiveTimeElapsed > 25000) {
                     overdueTabCount++;
                 }
+            } else {
+                tab.inactiveTimeElapsed = 0;
             }
         }
     }

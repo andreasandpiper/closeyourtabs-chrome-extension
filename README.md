@@ -16,7 +16,7 @@
 ### Installing
 
 1. Download zip file from repo
-2. Open [Chrome Extension Manager](chrome://extensions/) and check Developer Mode
+2. Open chrome://extensions/ and check Developer Mode
 3. Unload zip file
 4. Enable the extension
 5. Click tab icon in browser tool bar to see all tabs

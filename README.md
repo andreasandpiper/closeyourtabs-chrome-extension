@@ -26,11 +26,11 @@
 
 ## Authors
 
-* Andrea Wayte
-* Kelcey Lorenzo
-* Nick Quan
-* James Kirsch
-* Henry Moon 
+* Andrea Wayte - Chrome Extension Developer
+* Kelcey Lorenzo - React Developer for Website
+* Nick Quan - React Developer for Website
+* James Kirsch - Back End Developer for Website
+* Henry Moon - Back End Developer for Website
 
 
 ## Acknowledgments

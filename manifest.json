@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 
-	"name": "Tab test",
+	"name": "Close Your Tabs",
 	"description": "Tracks the amount of time elapsed since active use of each tab in all windows.",
 	"version": "0.0.1",
 

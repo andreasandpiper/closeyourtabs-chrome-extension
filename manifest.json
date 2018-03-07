@@ -14,8 +14,8 @@
 		"storage",
 		"tabs",
 		"<all_urls>",
-		"http://www.closeyourtabs.com/dashboard",
-		"http://www.closeyourtabs.com/dashboard#",
+		"https://www.closeyourtabs.com/dashboard",
+		"https://www.closeyourtabs.com/dashboard#",
 		"cookies",
 		"webNavigation"
 	],
@@ -24,7 +24,7 @@
 	},
 	"content_scripts": [{
 		"run_at": "document_end",
-		"matches": ["http://www.closeyourtabs.com/dashboard", "http://www.closeyourtabs.com/dashboard#"],
+		"matches": ["https://www.closeyourtabs.com/dashboard", "https://www.closeyourtabs.com/dashboard#"],
 		"js": ["dashboard.js"]
 	}]
 }

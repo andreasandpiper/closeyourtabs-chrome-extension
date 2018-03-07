@@ -1,5 +1,5 @@
 var user;
-const BASE_URL = 'http://www.closeyourtabs.com';
+const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME = 'connect.sid';
 
 /**
@@ -266,7 +266,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
  *@param {object} details
  */
 chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
-    if (details.url === 'http://www.closeyourtabs.com/dashboard' || details.url === 'http://www.closeyourtabs.com/dashboard#') {
+    if (details.url === 'https://www.closeyourtabs.com/dashboard' || details.url === 'https://www.closeyourtabs.com/dashboard#') {
         chrome.tabs.executeScript(null, {
             file: "dashboard.js"
         });

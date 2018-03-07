@@ -1,4 +1,4 @@
-const BASE_URL = 'http://www.closeyourtabs.com';
+const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME =  'connect.sid'; 
 
 /**

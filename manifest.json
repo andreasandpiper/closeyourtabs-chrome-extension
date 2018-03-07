@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 
 	"name": "Close Your Tabs",
-	"description": "Close Your Tabs keeps track of your currently open browser tabs across all Chrome windows and color-codes them depending on the duration of time since active use.",
+	"description": "Manages and displays all tabs in browser and color-codes them depending on the duration of time since active use.",
 	"version": "0.0.1",
 
 	"browser_action": {

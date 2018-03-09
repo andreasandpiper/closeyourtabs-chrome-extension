@@ -34,7 +34,6 @@ class User {
                     user.loggedIn = true;
                     user.changeBrowserIcon('images/extension-green-logo.png');
                     clearPreviousTabData();
-                    user.sendAllTabsToServer();
                 } else {
                     console.log('user NOT logged in');
                     user.changeBrowserIcon('images/iconpurple.png');
@@ -628,6 +627,9 @@ function requestToServerNoData(method, route) {
             if (xhr.status === 200) {
                 var result = JSON.parse(xhr.responseText);
                 console.log('success delete', result)
+                if(user.loggedIn){
+                    user.sendAllTabsToServer();
+                }
             } else {
                 user.logout();
                 console.log('no server')

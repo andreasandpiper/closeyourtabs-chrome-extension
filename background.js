@@ -100,7 +100,6 @@ class User {
  *@param {object} removeInfo windowid
  */
 chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
-    console.log('removed: ', removeInfo);
     removeTab(id, removeInfo.windowId);
 })
 
@@ -113,23 +112,23 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
-        console.log('updated: ', changeInfo)
-        if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-            var createdTab = createNewTab(tab);
-
-            if (user.loggedIn) {
-                var dataForServer = dataObjectForNewTab(createdTab);
-                createNewTabRequest(dataForServer, createdTab.index);
+        chrome.tabs-captureVisibleTab({"quality": 50}, function(dataUrl){
+            tab.screenshot = dataUrl; 
+            if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
+                var createdTab = createNewTab(tab);
+    
+                if (user.loggedIn) {
+                    var dataForServer = dataObjectForNewTab(createdTab);
+                    createNewTabRequest(dataForServer, createdTab.index);
+                }
+            } else {
+                var updatedTab = updateTab(tab);
+                if (user.loggedIn) {
+                    var dataForServer = dataObjectForUpdatedTab(updatedTab);
+                    sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
+                }
             }
-        } else {
-            var updatedTab = updateTab(tab);
-            if (user.loggedIn) {
-                var dataForServer = dataObjectForUpdatedTab(updatedTab);
-                sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
-            }
-
-        }
-
+        })
     }
 })
 
@@ -145,25 +144,26 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
         if (!user.tabsSortedByWindow[tab.windowId]) {
             return;
         }
-        updatePreviousActiveTab(tab.windowId);
-        user.activeTabIndex[tab.windowId] = tab.index;
-        console.log('highlighted: ', tab)
-        var tabWindowArray = user.tabsSortedByWindow[window.id];
-        if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-            var createdTab = createNewTab(tab);
-
-            if (user.loggedIn) {
-                var dataForServer = dataObjectForNewTab(createdTab);
-                createNewTabRequest(dataForServer, createdTab.index);
+        chrome.tabs.captureVisibleTab({"quality": 50}, function(dataUrl){
+            tab.screenshot = dataUrl; 
+            updatePreviousActiveTab(tab.windowId);
+            user.activeTabIndex[tab.windowId] = tab.index;
+            var tabWindowArray = user.tabsSortedByWindow[window.id];
+            if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
+                var createdTab = createNewTab(tab);
+    
+                if (user.loggedIn) {
+                    var dataForServer = dataObjectForNewTab(createdTab);
+                    createNewTabRequest(dataForServer, createdTab.index);
+                }
+            } else if (user.tabsSortedByWindow[tab.windowId][tab.index]) {
+                user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
+                user.tabsSortedByWindow[tab.windowId][tab.index].timeOfDeactivation = 0;
+                if (user.loggedIn) {
+                    activateTimeTab(user.tabsSortedByWindow[tab.windowId][tab.index].databaseTabID);
+                }
             }
-        } else if (user.tabsSortedByWindow[tab.windowId][tab.index]) {
-            user.tabsSortedByWindow[tab.windowId][tab.index].highlighted = true;
-            user.tabsSortedByWindow[tab.windowId][tab.index].timeOfDeactivation = 0;
-            if (user.loggedIn) {
-                activateTimeTab(user.tabsSortedByWindow[tab.windowId][tab.index].databaseTabID);
-            }
-        }
-
+        })
     })
 })
 
@@ -176,7 +176,6 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
 *@param { object } moveInfo fromIndex, toIndex, windowId
 */
 chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
-    console.log('moved: ', moveInfo)
     var tab = user.tabsSortedByWindow[moveInfo.windowId][moveInfo.fromIndex];
     user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.fromIndex, 1);
     user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.toIndex, 0, tab);
@@ -202,7 +201,6 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
  *@param {object} detachInfo  oldPosition, oldWindowId
  */
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
-    console.log('detached: ', detachInfo)
     var tab = user.tabsSortedByWindow[detachInfo.oldWindowId][detachInfo.oldPosition];
     var tabIDIndex = user.tabIds[detachInfo.oldWindowId].indexOf(tabId);
     user.tabIds[detachInfo.oldWindowId].splice(tabIDIndex, 1);
@@ -226,7 +224,6 @@ chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
  *calls newWindowForUser
  */
 chrome.windows.onCreated.addListener(function (window) {
-    console.log('window created: ', window)
     createNewWindow(window.id);
 });
 
@@ -247,7 +244,6 @@ chrome.windows.onRemoved.addListener(function (windowId) {
  *calls getAllTabs
  */
 chrome.runtime.onStartup.addListener(function (details) {
-    console.log('start up: ', details)
     createNewUser();
 });
 
@@ -257,7 +253,6 @@ chrome.runtime.onStartup.addListener(function (details) {
  *calls getAllTabs
  */
 chrome.runtime.onInstalled.addListener(function (details) {
-    console.log('installed: ', details)
     createNewUser();
 });
 
@@ -379,7 +374,7 @@ function createNewTab(tab) {
         title: tab.title,
         url: tab.url,
         index: tab.index,
-        screenshot: '',
+        screenshot: tab.screenshot || '',
         databaseTabID: '',
         highlighted: tab.highlighted
     }
@@ -394,7 +389,6 @@ function createNewTab(tab) {
     }
 
     if (tab.index < tabWindowArray.length) {
-        console.log('splice in')
         tabWindowArray.splice(tab.index, 0, tabObject);
         updateIndex(tab.index + 1, user.tabsSortedByWindow[tab.windowId].length, tab.windowId);
     } else {
@@ -413,6 +407,9 @@ function createNewTab(tab) {
 function updateTab(tab) {
     //if the site changed, get the elapsed time during active state and save to its url
     var currentInfo = user.tabsSortedByWindow[tab.windowId][tab.index];
+    if(currentInfo.screenshot && tab.screenshot === ''){
+        tab.screenshot = currentInfo.screenshot; 
+    }
     var updatedInfo = { ...currentInfo,
         id: tab.id,
         windowId: tab.windowId,
@@ -698,7 +695,8 @@ function dataObjectForNewTab(tab) {
         deactivatedTime: 0,
         browserTabIndex: tab.index,
         url: tab.url,
-        favicon: tab.favIconUrl
+        favicon: tab.favIconUrl,
+        screenshot: tab.screenshot
     };
     return dataForServer;
 }
@@ -714,6 +712,7 @@ function dataObjectForUpdatedTab(tab) {
         browserTabIndex: tab.index,
         url: tab.url,
         favicon: tab.favicon,
+        screenshot: tab.screenshot
     }
     return dataForServer;
 }

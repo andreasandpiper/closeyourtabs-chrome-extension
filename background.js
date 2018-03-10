@@ -111,7 +111,6 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
-        chrome.tabs-captureVisibleTab({"quality": 50}, function(dataUrl){
             tab.screenshot = dataUrl; 
             if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
                 var createdTab = createNewTab(tab);
@@ -127,7 +126,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                     sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
                 }
             }
-        })
     }
 })
 
@@ -344,6 +342,11 @@ chrome.runtime.onConnect.addListener(function (port) {
             })
         } else if (message.type === 'logout') {
             user.logout();
+        } else if(message.type === 'clear-data') {
+            createNewUser();
+            port.postMessage({
+                newInfo: true
+            })
         }
     });
 });

@@ -10,6 +10,7 @@ var inactiveTabCount = 0;
 
 document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
+document.getElementsByClassName('redo-tabs')[0].addEventListener('click', getAllNewTabData);
 
 /**
  * Port messaging between script and extension, catches response from extension 
@@ -47,6 +48,8 @@ port.onMessage.addListener(function (response) {
 		setBadge(inactiveTabCount);
 	} else if (response.loginStatus) {
 		hideLoginButtons();
+	} else if (response.newInfo){
+		sendMessageToGetTabInfo();
 	}
 });
 
@@ -161,6 +164,10 @@ function highlightTab(index, windowId, event) {
 	chrome.windows.update(windowId, {
 		focused: true
 	});
+}
+
+function getAllNewTabData(){ 
+	port.postMessage({type: 'clear-data'})
 }
 
 /**

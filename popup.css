@@ -225,3 +225,19 @@ a {
 #loading-message p {
 	font-weight: 600;
 }
+
+.redo-tabs{
+	color: #ffffff;
+	font-size: 16px;
+	text-align: right; 
+}
+
+.redo-tabs i , .redo-tabs p{
+	display: inline-block;
+	margin: 5px; 
+}
+
+.redo-tabs:hover {
+	color: rgb(233, 229, 153); 
+	cursor: pointer; 
+}

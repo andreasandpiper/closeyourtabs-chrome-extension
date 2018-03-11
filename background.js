@@ -111,21 +111,20 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
-            tab.screenshot = dataUrl; 
-            if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-                var createdTab = createNewTab(tab);
-    
-                if (user.loggedIn) {
-                    var dataForServer = dataObjectForNewTab(createdTab);
-                    createNewTabRequest(dataForServer, createdTab.index);
-                }
-            } else {
-                var updatedTab = updateTab(tab);
-                if (user.loggedIn) {
-                    var dataForServer = dataObjectForUpdatedTab(updatedTab);
-                    sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
-                }
+        if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
+            var createdTab = createNewTab(tab);
+
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForNewTab(createdTab);
+                createNewTabRequest(dataForServer, createdTab.index);
             }
+        } else {
+            var updatedTab = updateTab(tab);
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForUpdatedTab(updatedTab);
+                sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
+            }
+        }
     }
 })
 

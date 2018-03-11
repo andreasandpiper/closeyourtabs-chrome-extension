@@ -232,7 +232,7 @@ a {
 	text-align: right; 
 }
 
-.redo-tabs i , .redo-tabs p{
+.redo-tabs i{
 	display: inline-block;
 	margin: 5px; 
 }
@@ -240,4 +240,12 @@ a {
 .redo-tabs:hover {
 	color: rgb(233, 229, 153); 
 	cursor: pointer; 
+}
+
+.redo-tabs p {
+	position: absolute;
+	bottom: 0; 
+	text-align: left; 
+	width: 80%; 
+	background-color: black; 
 }

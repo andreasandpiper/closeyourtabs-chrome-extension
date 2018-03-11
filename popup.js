@@ -7,10 +7,12 @@ var inactiveTabCount = 0;
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
  */
-
+var redoBtn = document.getElementsByClassName('redo-tabs')[0]; 
 document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
-document.getElementsByClassName('redo-tabs')[0].addEventListener('click', getAllNewTabData);
+redoBtn.addEventListener('click', getAllNewTabData);
+redoBtn.addEventListener('mouseover', showAlertMessage);
+redoBtn.addEventListener('mouseout', hideAlertMessage);
 
 /**
  * Port messaging between script and extension, catches response from extension 
@@ -179,6 +181,14 @@ function logoutUser() {
 	});
 	document.getElementById('logout').style.display = 'none';
 	document.getElementById('login').style.display = 'block';
+}
+
+function showAlertMessage(){
+	document.querySelector('.redo-tabs p').classList.remove('hidden');
+}
+
+function hideAlertMessage(){
+	document.querySelector('.redo-tabs p').classList.add('hidden');
 }
 
 

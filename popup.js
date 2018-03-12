@@ -3,6 +3,8 @@ var port = chrome.runtime.connect({
 	name: 'tab'
 });
 var inactiveTabCount = 0;
+var yellowInactiveTime = 60000;
+var redInactiveTime = 180000;
 
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension

@@ -301,9 +301,10 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onConnect.addListener(function (port) {
     console.assert(port.name == 'tab');
     port.onMessage.addListener(function (message) {
+        var responseObject = {};
+        responseObject.userStatus = user.loggedIn;
+
         if (message.type == 'popup') {
-            var responseObject = {};
-            responseObject.userStatus = user.loggedIn;
             chrome.windows.getAll(function (window) {
                 for (let array = 0; array < window.length; array++) {
                     if (window[array].focused === true) {
@@ -334,8 +335,6 @@ chrome.runtime.onConnect.addListener(function (port) {
         } else if (message.type === 'refresh') {
             updatedElaspedDeactivation();
             chrome.windows.getLastFocused(function (window) {
-                var responseObject = {};
-                responseObject.userStatus = user.loggedIn;
                 responseObject.allTabs = user.tabsSortedByWindow;
                 responseObject.currentWindow = lastFocused;
                 port.postMessage({
@@ -347,7 +346,7 @@ chrome.runtime.onConnect.addListener(function (port) {
         } else if(message.type === 'clear-data') {
             createNewUser();
             port.postMessage({
-                newInfo: true
+                newData: true
             })
         }
     });
@@ -779,7 +778,7 @@ function sortTabsIntoWindows(array){
     array.forEach( function(tab) {
         var newTab = {};
 
-        newTab.inactiveTimeElapsed = tab.currentTime = tab.deactivatedTime; 
+        newTab.inactiveTimeElapsed = tab.currentTime - tab.deactivatedTime; 
         newTab.highlighted = user.tabsSortedByWindow[tab.windowID][tab.browserTabIndex].highlighted;
         newTab.favicon = user.tabsSortedByWindow[tab.windowID][tab.browserTabIndex].favicon;
         newTab.url = tab.url;

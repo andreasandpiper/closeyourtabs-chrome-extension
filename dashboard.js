@@ -56,7 +56,6 @@ function removeSelectedTabs(){
 *@param {object} parent 
 */
 function removeElement(parent){
-    console.log(parent)
     var window = parent.getAttribute('data-windowid');
     var index = parent.getAttribute('data-tabindex');
     var tabInfo = {};

@@ -13,9 +13,10 @@ var redoBtn = document.getElementsByClassName('fa-exclamation-triangle')[0];
 document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
 redoBtn.addEventListener('click', getAllNewTabData);
-redoBtn.addEventListener('mouseover', showAlertMessage);
-redoBtn.addEventListener('mouseout', hideAlertMessage);
-
+redoBtn.addEventListener('mouseover', showAlertMessage.bind(null, ".redo-tabs p"));
+redoBtn.addEventListener('mouseout', hideAlertMessage.bind(null, ".redo-tabs p"));
+document.getElementById("refresh").addEventListener('mouseover', showAlertMessage.bind(null, ".user-tools p"));
+document.getElementById("refresh").addEventListener('mouseout', hideAlertMessage.bind(null, ".user-tools p"));
 /**
  * Port messaging between script and extension, catches response from extension 
  * If response is array of data, render all tabs to dom
@@ -185,12 +186,12 @@ function logoutUser() {
 	document.getElementById('login').style.display = 'block';
 }
 
-function showAlertMessage(){
-	document.querySelector('.redo-tabs p').classList.remove('hidden');
+function showAlertMessage(className){
+	document.querySelector(className).classList.remove('hidden');
 }
 
-function hideAlertMessage(){
-	document.querySelector('.redo-tabs p').classList.add('hidden');
+function hideAlertMessage(className){
+	document.querySelector(className).classList.add('hidden');
 }
 
 function showLoadingMessage(){

@@ -48,10 +48,8 @@ class User {
             url: BASE_URL,
             name: COOKIE_NAME
         }, function (result) {
-            console.log(result)
             if (result.name === COOKIE_NAME) {
                 user.changeBrowserIcon('images/iconpurple.png')
-                console.log(user)
                 if (user.loggedIn) {
                     clearPreviousTabData();
                     user.loggedIn = false;
@@ -220,7 +218,6 @@ chrome.windows.onCreated.addListener(function (window) {
  *@param {object} windowId
  */
 chrome.windows.onRemoved.addListener(function (windowId) {
-    console.log('window removed: ', windowId)
     delete user.tabsSortedByWindow[windowId];
     delete user.activeTabIndex[windowId];
     delete user.tabIds[windowId];
@@ -635,7 +632,8 @@ function sendDataToServer(method, action, data) {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
-            if (xhr.status === 200 && JSON.parse(xhr.responseText).success) {
+            var result = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) {
                 console.log(xhr.responseText);
             } else {
                 user.logout();
@@ -780,7 +778,6 @@ function sortTabsIntoWindows(array){
 
     array.forEach( function(tab) {
         var newTab = {};
-        console.log(tab)
 
         newTab.inactiveTimeElapsed = tab.currentTime = tab.deactivatedTime; 
         newTab.highlighted = user.tabsSortedByWindow[tab.windowID][tab.browserTabIndex].highlighted;

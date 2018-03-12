@@ -9,7 +9,7 @@ var redInactiveTime = 180000;
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
  */
-var redoBtn = document.getElementsByClassName('redo-tabs')[0]; 
+var redoBtn = document.getElementsByClassName('fa-exclamation-triangle')[0]; 
 document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
 redoBtn.addEventListener('click', getAllNewTabData);
@@ -33,6 +33,7 @@ port.onMessage.addListener(function (response) {
 			for (var item in windows[window]) {
 				var tabInfo = windows[window][item];
 				var tabElement = createDomElement(tabInfo);
+				console.log(tabElement)
 				windowTabContainer.appendChild(tabElement);
 				if (tabInfo.inactiveTimeElapsed > 25000) {
 					inactiveTabCount++;

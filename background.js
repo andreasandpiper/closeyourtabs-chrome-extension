@@ -100,7 +100,7 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
-        chrome.tabs.captureVisibleTab({quality: 50},function(dataUrl){
+        chrome.tabs.captureVisibleTab({quality: 5},function(dataUrl){
             tab.screenshot = dataUrl; 
             if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
                 var createdTab = createNewTab(tab);
@@ -134,7 +134,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
         user.activeTabIndex[tab.windowId] = tab.index;
         var tabWindowArray = user.tabsSortedByWindow[window.id];
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-            chrome.tabs.captureVisibleTab(function(dataUrl){
+            chrome.tabs.captureVisibleTab({quality:5}, function(dataUrl){
                 tab.screenshot = dataUrl; 
                 var createdTab = createNewTab(tab);
 
@@ -218,7 +218,6 @@ chrome.windows.onCreated.addListener(function (window) {
  *@param {object} windowId
  */
 chrome.windows.onRemoved.addListener(function (windowId) {
-    console.log('window removed: ', windowId)
     delete user.tabsSortedByWindow[windowId];
     delete user.activeTabIndex[windowId];
     delete user.tabIds[windowId];
@@ -303,10 +302,8 @@ chrome.runtime.onConnect.addListener(function (port) {
     console.assert(port.name == 'tab');
     port.onMessage.addListener(function (message) {
         if (message.type == 'popup') {
-            updatedElaspedDeactivation();
             var responseObject = {};
             responseObject.userStatus = user.loggedIn;
-            responseObject.allTabs = user.tabsSortedByWindow;
             chrome.windows.getAll(function (window) {
                 for (let array = 0; array < window.length; array++) {
                     if (window[array].focused === true) {
@@ -314,10 +311,26 @@ chrome.runtime.onConnect.addListener(function (port) {
                         lastFocused = window[array].id;
                     }
                 }
-                port.postMessage({
-                    sessionInfo: responseObject
-                });
-            })
+                if(user.loggedIn){
+                    getAllTabsFromServer().then(resp => {
+                        responseObject.allTabs = sortTabsIntoWindows(resp.data)
+
+                        port.postMessage({
+                            sessionInfo: responseObject
+                        });
+
+                    }).catch( err => {
+                        console.log(err)
+                    })
+                }else {
+                    updatedElaspedDeactivation();
+                    responseObject.allTabs = user.tabsSortedByWindow;
+                    
+                        port.postMessage({
+                            sessionInfo: responseObject
+                        });
+                }        
+            })   
         } else if (message.type === 'refresh') {
             updatedElaspedDeactivation();
             chrome.windows.getLastFocused(function (window) {
@@ -577,6 +590,32 @@ function clearPreviousTabData() {
     requestToServerNoData('DELETE', `${BASE_URL}/tabs/google`);
 }
 
+/**
+ * Get request to receive all tabs of user from database
+ */
+function getAllTabsFromServer() {
+    return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', `${BASE_URL}/tabs`, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status === 200) {
+                    var result = JSON.parse(xhr.responseText);
+                    resolve(result)
+                } else {
+                    user.logout();
+                    reject(xhr.responseText)
+                }
+            }
+        };
+        xhr.onerror = function () {
+            user.logout();
+            reject()
+
+        };
+        xhr.send();
+    })
+}
 
 /**
  * basic request to server in which the return callback does not need to do anything
@@ -593,6 +632,7 @@ function sendDataToServer(method, action, data) {
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
+            var result = JSON.parse(xhr.responseText);
             if (xhr.status === 200) {
                 console.log(xhr.responseText);
             } else {
@@ -608,7 +648,7 @@ function sendDataToServer(method, action, data) {
 }
 
 /**
- * Get request to receive all tabs of user from database
+ * Delete all user tab information from the database
  */
 function requestToServerNoData(method, route) {
     var xhr = new XMLHttpRequest();
@@ -645,6 +685,7 @@ function createNewTabRequest(tabObject, index) {
         if (xhr.readyState == 4) {
             if (xhr.status === 200) {
                 var result = JSON.parse(xhr.responseText)
+                console.log(result)
                 if (result.success) {
                     var result = JSON.parse(xhr.responseText).data.insertId;
                     var tabObj = user.tabsSortedByWindow[tabObject.windowID][index];
@@ -725,4 +766,39 @@ function deactivateTimeTab(uniqueID) {
         tabObject['databaseTabID'] = uniqueID;
         sendDataToServer('PUT', `${BASE_URL}/tabs/deactivatedTime`, tabObject)
     }
+}
+
+/**
+* sorts array of tabs into an object of windows
+*@param {array} array 
+*@returns {object}
+*/
+function sortTabsIntoWindows(array){
+    var windows = {}
+
+    array.forEach( function(tab) {
+        var newTab = {};
+
+        newTab.inactiveTimeElapsed = tab.currentTime = tab.deactivatedTime; 
+        newTab.highlighted = user.tabsSortedByWindow[tab.windowID][tab.browserTabIndex].highlighted;
+        newTab.favicon = user.tabsSortedByWindow[tab.windowID][tab.browserTabIndex].favicon;
+        newTab.url = tab.url;
+        newTab.windowId = tab.windowID;
+        newTab.title = tab.tabTitle; 
+        newTab.index = tab.browserTabIndex;
+        newTab.id = user.tabsSortedByWindow[tab.windowID][tab.browserTabIndex].id;
+
+        if(windows[tab.windowID]){
+            windows[tab.windowID].push(newTab)
+        } else {
+            windows[tab.windowID] = [newTab]
+        }
+    })
+    
+    for(var window in windows){
+        windows[window] = windows[window].sort(function(a,b){
+            return a.browserTabIndex - b.browserTabIndex;
+        })
+    }
+    return windows
 }

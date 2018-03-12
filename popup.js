@@ -22,7 +22,6 @@ redoBtn.addEventListener('mouseout', hideAlertMessage);
  *@param {object} response 
  */
 port.onMessage.addListener(function (response) {
-	console.log(response)
 	if (response.sessionInfo) {
 		document.getElementById('tag-titles').innerHTML = '';
 		var windows = response.sessionInfo.allTabs;
@@ -33,7 +32,6 @@ port.onMessage.addListener(function (response) {
 			for (var item in windows[window]) {
 				var tabInfo = windows[window][item];
 				var tabElement = createDomElement(tabInfo);
-				console.log(tabElement)
 				windowTabContainer.appendChild(tabElement);
 				if (tabInfo.inactiveTimeElapsed > 25000) {
 					inactiveTabCount++;
@@ -53,8 +51,9 @@ port.onMessage.addListener(function (response) {
 		setBadge(inactiveTabCount);
 	} else if (response.loginStatus) {
 		hideLoginButtons();
-	} else if (response.newInfo){
-		sendMessageToGetTabInfo();
+	} else if (response.newData){
+		showLoadingMessage();
+		setTimeout(sendMessageToGetTabInfo(), 500);
 	}
 });
 
@@ -194,6 +193,18 @@ function hideAlertMessage(){
 	document.querySelector('.redo-tabs p').classList.add('hidden');
 }
 
+function showLoadingMessage(){
+	var container = document.getElementById('tag-titles');
+	var div = document.createElement('div').id = 'loading message';
+	var image = document.createElement('img');
+	image.src = "images/loading.gif";
+	image.alt = 'loading';
+	var text = document.createElement('p');
+	text.createTextNode("If you don't see your tabs, click refresh!")
+	div.appendChild(image);
+	div.appendChild(text);
+	container.appendChild(div);
+}
 
 
 

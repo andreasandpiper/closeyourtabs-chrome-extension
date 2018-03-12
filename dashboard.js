@@ -20,7 +20,7 @@ function init(){
 function addClickHandlersToTabs(){
     var closeBtn = document.getElementsByClassName("close-favicon");
     for(var index = 0; index < closeBtn.length ; index++ ){
-        closeBtn[index].addEventListener('click', removeSingleTab)
+        document.querySelector('.main-tab-area').addEventListener('click', removeSingleTab)
     }
 }
 
@@ -29,8 +29,10 @@ function addClickHandlersToTabs(){
 *@param {object} event 
 */
 function removeSingleTab(event){
-    var parent = event.target.closest('.tab-container');
-    removeElement(parent);
+    if(event.target.tagName === 'path' || event.target.tagName === 'svg'){
+        var parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
+        removeElement(parent);
+    }
 }
 
 /**
@@ -56,6 +58,9 @@ function removeSelectedTabs(){
 *@param {object} parent 
 */
 function removeElement(parent){
+    if(!parent){
+        return; 
+    }
     var window = parent.getAttribute('data-windowid');
     var index = parent.getAttribute('data-tabindex');
     var tabInfo = {};

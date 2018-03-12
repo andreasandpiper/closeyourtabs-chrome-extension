@@ -237,7 +237,7 @@ a {
 	margin: 5px; 
 }
 
-.redo-tabs:hover {
+.redo-tabs i:hover {
 	color: rgb(233, 229, 153); 
 	cursor: pointer; 
 }
@@ -248,4 +248,5 @@ a {
 	text-align: left; 
 	width: 80%; 
 	background-color: black; 
+	color: rgb(233, 229, 153); 
 }

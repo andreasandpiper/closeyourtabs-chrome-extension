@@ -86,18 +86,12 @@ function createDomElement(tabObject) {
 	trashcan.classList.add('far','fa-trash-alt');
 	trashcanContainer.classList.add('trashcan-container');
 	trashcanContainer.appendChild(trashcan);
-
-	//Create div to contain favicon and title
-	var tabInformation = document.createElement('div');
-	tabInformation.classList.add('tab-information');
+	trashcan.addEventListener('click', removeThisTab.bind(this, tabObject.id));
 
 	//favicon element
-	var favicon = document.createElement('div');
-	var faviconImage = document.createElement('img');
+	var favicon = document.createElement('img');
 	favicon.classList.add('favicon-container');
-	faviconImage.src = tabObject.favicon || 'images/iconpurple.png';
-	favicon.appendChild(faviconImage);
-
+	favicon.src = tabObject.favicon || 'images/iconpurple.png';
 
 	//title element
 	var title = document.createElement('div');
@@ -105,12 +99,16 @@ function createDomElement(tabObject) {
 	title.classList.add('title-container');
 	title.appendChild(addText);
 
+	//Create div to contain favicon and title
+	var tabInformation = document.createElement('div');
+	tabInformation.classList.add('tab-information');
+	tabInformation.appendChild(favicon);
+	tabInformation.append(title);
+	tabInformation.addEventListener('click', highlightTab.bind(this, tabObject.index, tabObject.windowId));
+
 	//Append elements to tab container
 	tab.appendChild(trashcanContainer);
-	tab.appendChild(favicon);
-	tab.append(title);
-	trashcan.addEventListener('click', removeThisTab.bind(this, tabObject.id));
-	tab.addEventListener('click', highlightTab.bind(this, tabObject.index, tabObject.windowId));
+	tab.append(tabInformation);
 
 	return tab;
 }

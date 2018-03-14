@@ -24,7 +24,7 @@ document.getElementById("refresh").addEventListener('mouseout', hideAlertMessage
  */
 port.onMessage.addListener(function (response) {
 	if (response.sessionInfo) {
-		clearTabDOMElements();
+		clearTabDOMElements('tab-container');
 		var windows = response.sessionInfo.allTabs;
 		for (var window in windows) {
 			var windowTabContainer = document.createElement('div');
@@ -160,11 +160,13 @@ function hideLoginButtons() {
  * removes all tabs in dom and sends message to extension to get new tab info
  */
 function refreshContent() {
-	clearTabDOMElements();
+	clearTabDOMElements('tab-container');
 	inactiveTabCount = 0;
 	port.postMessage({
 		type: 'refresh'
 	});
+	clearTabDOMElements('tab-container');	
+	showLoadingMessage();
 }
 
 
@@ -184,8 +186,13 @@ function highlightTab(index, windowId, event) {
 	});
 }
 
+/**
+ * Calls background page to clear and collect new data
+ */
 function getAllNewTabData(){ 
-	port.postMessage({type: 'clear-data'})
+	port.postMessage({type: 'clear-data'});
+	clearTabDOMElements('tab-container');	
+	showLoadingMessage();
 }
 
 /**
@@ -199,29 +206,45 @@ function logoutUser() {
 	document.getElementById('login').style.display = 'block';
 }
 
+/**
+ * Shows message when hover icon
+ */
 function showAlertMessage(className){
 	document.querySelector(className).classList.remove('hidden');
 }
 
+/**
+ * Hides message when unhovers icon
+ */
 function hideAlertMessage(className){
 	document.querySelector(className).classList.add('hidden');
 }
 
+/**
+ * shows loading message
+ */
 function showLoadingMessage(){
 	var container = document.getElementById('tab-container');
-	var div = document.createElement('div').id = 'loading message';
+	var div = document.createElement('div')
+	div.id = 'loading-message';
 	var image = document.createElement('img');
 	image.src = "images/loading.gif";
 	image.alt = 'loading';
-	var text = document.createElement('p');
-	text.createTextNode("If you don't see your tabs, click refresh!")
+	var pTag = document.createElement('p');
+	var text = document.createTextNode("If you don't see your tabs, click refresh!");
+	pTag.appendChild(text);
 	div.appendChild(image);
-	div.appendChild(text);
+	div.appendChild(pTag);
+
+
 	container.appendChild(div);
 }
 
-function clearTabDOMElements(){
-	var tabContainer = document.getElementById("tab-container");
+/**
+ * Clears all child nodes of tab-container
+ */
+function clearTabDOMElements(container){
+	var tabContainer = document.getElementById(container);
 	while (tabContainer.firstChild) {
     tabContainer.removeChild(tabContainer.firstChild);
 	}

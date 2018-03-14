@@ -19,11 +19,11 @@
 		"webNavigation"
 	],
 	"background": {
-		"scripts": ["background.js"]
+		"scripts": ["js/user_actions.js", "js/server_requests.js", "js/tab_apis.js", "js/messaging_between_scripts.js"]
 	},
 	"content_scripts": [{
 		"run_at": "document_end",
 		"matches": ["https://www.closeyourtabs.com/dashboard*"],
-		"js": ["dashboard.js"]
+		"js": ["js/dashboard.js"]
 	}]
 }

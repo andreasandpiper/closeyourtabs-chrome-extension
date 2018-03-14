@@ -3,6 +3,7 @@ var port = chrome.runtime.connect({
 	name: 'tab'
 });
 var inactiveTabCount = 0;
+var greenInactiveTime = 20000;
 var yellowInactiveTime = 60000;
 var redInactiveTime = 180000;
 
@@ -34,7 +35,7 @@ port.onMessage.addListener(function (response) {
 				var tabInfo = windows[window][item];
 				var tabElement = createDomElement(tabInfo);
 				windowTabContainer.appendChild(tabElement);
-				if (tabInfo.inactiveTimeElapsed > 25000) {
+				if (tabInfo.inactiveTimeElapsed > redInactiveTime) {
 					inactiveTabCount++;
 				}
 			}
@@ -68,9 +69,11 @@ function createDomElement(tabObject) {
 	}
 	if (tabObject.highlighted) {
 		tabObject.color = 'activetab';
-	} else if (tabObject.inactiveTimeElapsed < 10000) {
+	} else if (tabObject.inactiveTimeElapsed < greenInactiveTime){
+		tabObject.color = 'white';
+	} else if (tabObject.inactiveTimeElapsed > greenInactiveTime && tabObject.inactiveTimeElapsed < yellowInactiveTime) {
 		tabObject.color = 'green';
-	} else if (tabObject.inactiveTimeElapsed < 25000) {
+	} else if (tabObject.inactiveTimeElapsed < yellowInactiveTime) {
 		tabObject.color = 'yellow';
 	} else {
 		tabObject.color = 'red';

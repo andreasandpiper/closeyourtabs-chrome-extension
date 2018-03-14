@@ -201,8 +201,12 @@ a {
 	background-color: rgb(156, 95, 88);
 }
 
-.green {
+.white {
 	background-color: #ffffff;
+}
+
+.green {
+	background-color: rgb(143, 182, 179);
 }
 
 .activetab {

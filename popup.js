@@ -28,7 +28,7 @@ port.onMessage.addListener(function (response) {
 		var windows = response.sessionInfo.allTabs;
 		for (var window in windows) {
 			var windowTabContainer = document.createElement('div');
-			windowTabContainer.className = 'window'
+			windowTabContainer.classList.add('window');
 
 			for (var item in windows[window]) {
 				var tabInfo = windows[window][item];
@@ -76,27 +76,42 @@ function createDomElement(tabObject) {
 		tabObject.color = 'red';
 	}
 
+	//Create tab container
 	var tab = document.createElement('div');
+	tab.className = 'tab-container id' + tabObject.id + ' ' + tabObject.color;
+
+	//trashcan element
 	var trashcanContainer = document.createElement('div');
-	trashcanContainer.className = 'trashcan-container';
+	var trashcan = document.createElement('i');
+	trashcan.classList.add('far','fa-trash-alt');
+	trashcanContainer.classList.add('trashcan-container');
+	trashcanContainer.appendChild(trashcan);
+
+	//Create div to contain favicon and title
+	var tabInformation = document.createElement('div');
+	tabInformation.classList.add('tab-information');
+
+	//favicon element
 	var favicon = document.createElement('div');
-	favicon.className = 'favicon-container';
-	var title = document.createElement('div');
-	title.className = 'title-container';
 	var faviconImage = document.createElement('img');
+	favicon.classList.add('favicon-container');
 	faviconImage.src = tabObject.favicon || 'images/iconpurple.png';
 	favicon.appendChild(faviconImage);
-	var trashcan = document.createElement('i');
-	trashcan.className = 'far fa-trash-alt';
-	trashcanContainer.appendChild(trashcan);
+
+
+	//title element
+	var title = document.createElement('div');
 	var addText = document.createTextNode(tabObject.title.substring(0, lengthOfString));
+	title.classList.add('title-container');
 	title.appendChild(addText);
-	tab.className = 'tab-container id' + tabObject.id + ' ' + tabObject.color;
+
+	//Append elements to tab container
 	tab.appendChild(trashcanContainer);
 	tab.appendChild(favicon);
 	tab.append(title);
 	trashcan.addEventListener('click', removeThisTab.bind(this, tabObject.id));
 	tab.addEventListener('click', highlightTab.bind(this, tabObject.index, tabObject.windowId));
+
 	return tab;
 }
 
@@ -217,5 +232,7 @@ document.body.style.transition = 'opacity ease-out .4s';
 requestAnimationFrame(function () {
 	document.body.style.opacity = 1;
 });
+
+//End of Code
 
 sendMessageToGetTabInfo();

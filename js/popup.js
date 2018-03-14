@@ -3,9 +3,9 @@ var port = chrome.runtime.connect({
 	name: 'tab'
 });
 var inactiveTabCount = 0;
-var greenInactiveTime = 20000;
-var yellowInactiveTime = 60000;
-var redInactiveTime = 180000;
+var greenInactiveTime = 20;
+var yellowInactiveTime = 60;
+var redInactiveTime = 180;
 
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
@@ -67,13 +67,15 @@ function createDomElement(tabObject) {
 	if (!tabObject.title) {
 		return;
 	}
+
+	let timeElapsed = tabObject.inactiveTimeElapsed / 60000; 
 	if (tabObject.highlighted) {
 		tabObject.color = 'activetab';
-	} else if (tabObject.inactiveTimeElapsed < greenInactiveTime){
+	} else if (timeElapsed < greenInactiveTime){
 		tabObject.color = 'white';
-	} else if (tabObject.inactiveTimeElapsed > greenInactiveTime && tabObject.inactiveTimeElapsed < yellowInactiveTime) {
+	} else if (timeElapsed < yellowInactiveTime) {
 		tabObject.color = 'green';
-	} else if (tabObject.inactiveTimeElapsed < yellowInactiveTime) {
+	} else if (timeElapsed < yellowInactiveTime) {
 		tabObject.color = 'yellow';
 	} else {
 		tabObject.color = 'red';

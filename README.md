@@ -13,7 +13,14 @@
 * Chrome Browser
 * Google Email (Optional)
 
-### Installing
+
+### Download via Chrome Store
+
+By downloading via Chrome Store, the extension automatically updates.  
+
+[Chrome Store](https://chrome.google.com/webstore/detail/close-your-tabs/nlgenhmcakjpnmgnplkiomeiniklmfkc?hl=en-US)
+
+### Installing 
 
 1. Download zip file from repo
 2. Open chrome://extensions/ and check Developer Mode
@@ -22,6 +29,13 @@
 5. Click tab icon in browser tool bar to see all tabs
 6. Click "Login" or the title to access the webpage
 
+### Contribute 
+
+This is an open source project, Fork the repo, create a branch, and create a pull request. 
+
+### Terms of Agreement
+
+Do not copy, contribute instead! Free to use! 
 
 
 ## Authors

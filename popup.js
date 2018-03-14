@@ -24,7 +24,7 @@ document.getElementById("refresh").addEventListener('mouseout', hideAlertMessage
  */
 port.onMessage.addListener(function (response) {
 	if (response.sessionInfo) {
-		document.getElementById('tag-titles').innerHTML = '';
+		clearTabDOMElements();
 		var windows = response.sessionInfo.allTabs;
 		for (var window in windows) {
 			var windowTabContainer = document.createElement('div');
@@ -43,9 +43,9 @@ port.onMessage.addListener(function (response) {
 			}
 
 			if (window == response.sessionInfo.currentWindow) {
-				document.getElementById('tag-titles').prepend(windowTabContainer);
+				document.getElementById('tab-container').prepend(windowTabContainer);
 			} else {
-				document.getElementById('tag-titles').appendChild(windowTabContainer);
+				document.getElementById('tab-container').appendChild(windowTabContainer);
 			}
 
 		}
@@ -162,7 +162,7 @@ function hideLoginButtons() {
  * removes all tabs in dom and sends message to extension to get new tab info
  */
 function refreshContent() {
-	document.getElementById('tag-titles').innerHTML = '';
+	clearTabDOMElements();
 	inactiveTabCount = 0;
 	port.postMessage({
 		type: 'refresh'
@@ -210,7 +210,7 @@ function hideAlertMessage(className){
 }
 
 function showLoadingMessage(){
-	var container = document.getElementById('tag-titles');
+	var container = document.getElementById('tab-container');
 	var div = document.createElement('div').id = 'loading message';
 	var image = document.createElement('img');
 	image.src = "images/loading.gif";
@@ -220,6 +220,13 @@ function showLoadingMessage(){
 	div.appendChild(image);
 	div.appendChild(text);
 	container.appendChild(div);
+}
+
+function clearTabDOMElements(){
+	var tabContainer = document.getElementById("tab-container");
+	while (tabContainer.firstChild) {
+    tabContainer.removeChild(tabContainer.firstChild);
+	}
 }
 
 

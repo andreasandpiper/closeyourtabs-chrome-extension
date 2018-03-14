@@ -47,7 +47,7 @@ a:focus {
 	height: 75%;
 }
 
-#tag-titles {
+#tab-container {
 	margin: 1% 0;
 	overflow: auto;
 	position: relative;

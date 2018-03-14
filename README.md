@@ -33,11 +33,6 @@ By downloading via Chrome Store, the extension automatically updates.
 
 This is an open source project, Fork the repo, create a branch, and create a pull request. 
 
-### Terms of Agreement
-
-Do not copy, contribute instead! Free to use! 
-
-
 ## Authors
 
 * Andrea Wayte - Chrome Extension Developer

@@ -62,8 +62,6 @@ a:focus {
 	font-size: 1.2em;
 	margin: 1% 0;
 	background: white;
-	display: flex;
-	overflow-x: hidden;
 }
 
 .tab-container:hover {
@@ -78,6 +76,11 @@ a:focus {
 	display: inline-block;
 	width: 79%;
 	padding-left: 2%;
+}
+
+.tab-information {
+	display: inline-block;
+	width: 90%;
 }
 
 .trashcan-container,

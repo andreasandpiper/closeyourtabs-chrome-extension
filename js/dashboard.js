@@ -10,7 +10,7 @@ function init(){
     checkUserLoginStatus();
     logoutBtn.addEventListener('click', logoutUser);
     deleteBtn[0].addEventListener('click', removeSelectedTabs);
-    setTimeout(function(){addClickHandlersToTabs()}, 800)
+    setTimeout(function(){addClickHandlersToTabs()}, 800);
     console.log('content script loaded');
 }
 
@@ -18,6 +18,7 @@ function init(){
 * Add click handler to each tab container on webpage
 */
 function addClickHandlersToTabs(){
+    removeOpenIconOnWebpage();
     var closeBtn = document.getElementsByClassName("close-favicon");
     for(var index = 0; index < closeBtn.length ; index++ ){
         document.querySelector('.main-tab-area').addEventListener('click', removeSingleTab)
@@ -29,7 +30,7 @@ function addClickHandlersToTabs(){
 *@param {object} event 
 */
 function removeSingleTab(event){
-    if(event.target.tagName === 'path' || event.target.tagName === 'svg'){
+    if(event.target.parentElement.classList[1] === 'fa-times' || event.target.classList[1] === 'fa-times'){
         var parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
         removeElement(parent);
     }
@@ -83,5 +84,42 @@ function checkUserLoginStatus(){
     chrome.runtime.sendMessage({type: "checkLogin"});
 }
 
+function removeOpenIconOnWebpage(){
+    var openIcon = document.getElementsByClassName('open-favicon');
+    console.log(openIcon)
+    while(openIcon.length){
+        var icon = openIcon[0];
+        var container = icon.closest('.tab-utilities-container');
+        var newIcon = document.createElement('i');
+        var iconContainer = document.createElement('div');
+        iconContainer.classList.add('tab-utility', 'highlight-icon');
+        icon.remove();
+        newIcon.classList.add('fas', 'fa-external-link-alt');
+        iconContainer.appendChild(newIcon);
+        container.prepend(iconContainer);
+        iconContainer.addEventListener('click', extensionAction);
+    }
+}
+
+function extensionAction(){
+    var parent = null; 
+    if(event.target.parentElement.classList[1] === 'fa-external-link-alt' || event.target.classList[1] === 'fa-external-link-alt'){
+        parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
+    }
+
+
+    if(!parent){
+        return; 
+    }
+    var window = parent.getAttribute('data-windowid');
+    var index = parent.getAttribute('data-tabindex');
+    var tabInfo = {};
+    tabInfo['window'] = window;
+    tabInfo['index'] = index; 
+    console.log(tabInfo)
+    chrome.runtime.sendMessage({type: "highlightTab", data: tabInfo});
+}
+
 init();
+
 

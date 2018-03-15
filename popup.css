@@ -1,6 +1,7 @@
 * {
 	box-sizing: border-box;
 	margin: 0;
+	color: #000000; 
 }
 
 body {
@@ -236,11 +237,11 @@ a {
 }
 
 .redo-tabs{
-	color: #ffffff;
 	text-align: right; 
 }
 
 .redo-tabs i{
+	color: #ffffff;
 	display: inline-block;
 	margin: 5px; 
 	font-size: 16px;
@@ -251,20 +252,26 @@ a {
 	cursor: pointer; 
 }
 
-.redo-tabs p{
+.information, .reset {
 	position: absolute;
+	width: 50%; 
 	bottom: 25px;
 	right: 0; 
-	background-color: black; 
-	color: rgb(233, 229, 153); 
+	background-color: rgb(26, 54, 74);
 	padding: 5px;
 }
 
-.user-tools p {
-	position: absolute;
-	bottom: 25px;
-	right: 0; 
-	background-color: black; 
-	color: rgb(233, 229, 153); 
-	padding: 5px;
+.information h4 {
+	text-align: center; 
+	color: #ffffff;
+}
+
+.information p {
+	margin: 5px; 
+	padding: 5px; 
+	text-align: left;
+}
+
+.reset {
+	color: #ffffff;
 }

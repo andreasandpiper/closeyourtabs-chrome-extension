@@ -18,8 +18,7 @@ document.getElementById('login').addEventListener('click', openWebpage);
 redoBtn.addEventListener('click', getAllNewTabData);
 redoBtn.addEventListener('mouseover', showAlertMessage.bind(null, ".redo-tabs p"));
 redoBtn.addEventListener('mouseout', hideAlertMessage.bind(null, ".redo-tabs p"));
-document.getElementById("refresh").addEventListener('mouseover', showAlertMessage.bind(null, ".user-tools p"));
-document.getElementById("refresh").addEventListener('mouseout', hideAlertMessage.bind(null, ".user-tools p"));
+
 /**
  * Port messaging between script and extension, catches response from extension 
  * If response is array of data, render all tabs to dom

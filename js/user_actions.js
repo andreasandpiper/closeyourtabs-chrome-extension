@@ -1,7 +1,7 @@
 var user;
 const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME = 'connect.sid';
-var alertInactiveTime = 180000;
+var alertInactiveTime = 180;
 
 /**
  * User class keeps track of current tab information and logged in status
@@ -283,7 +283,8 @@ function updatedElaspedDeactivation() {
             if (!tab.highlighted) {
                 tab.inactiveTimeElapsed =
                     currentTime - tab.timeOfDeactivation;
-                if(tab.inactiveTimeElapsed > alertInactiveTime){
+                let timeElapsed = tab.inactiveTimeElapsed / 60000; 
+                if(timeElapsed > alertInactiveTime){
                     overdueTabCount++;
                 }
             } else {

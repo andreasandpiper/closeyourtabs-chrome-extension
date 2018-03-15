@@ -28,6 +28,7 @@ port.onMessage.addListener(function (response) {
 	if (response.sessionInfo) {
 		clearTabDOMElements('tab-container');
 		var windows = response.sessionInfo.allTabs;
+		var inactiveTabCount = 0; 
 		for (var window in windows) {
 			var windowTabContainer = document.createElement('div');
 			windowTabContainer.classList.add('window');
@@ -36,9 +37,6 @@ port.onMessage.addListener(function (response) {
 				var tabInfo = windows[window][item];
 				var tabElement = createDomElement(tabInfo);
 				windowTabContainer.appendChild(tabElement);
-				if (tabInfo.inactiveTimeElapsed > redInactiveTime) {
-					inactiveTabCount++;
-				}
 			}
 			if (response.sessionInfo.userStatus) {
 				hideLoginButtons();
@@ -80,6 +78,7 @@ function createDomElement(tabObject) {
 		tabObject.color = 'yellow';
 	} else {
 		tabObject.color = 'red';
+		inactiveTabCount++; 
 	}
 
 	//Create tab container
@@ -140,8 +139,6 @@ function removeThisTab(id, event) {
 	chrome.tabs.remove(id);
 	var elem = document.querySelector('.id' + id);
 	elem.parentNode.removeChild(elem);
-	inactiveTabCount--;
-	setBadge(inactiveTabCount);
 }
 
 /**

@@ -7,17 +7,24 @@ const COOKIE_NAME =  'connect.sid';
 function init(){
     var logoutBtn = document.getElementById('log-out-button');
     var deleteBtn = document.getElementsByClassName('sidebar-delete');
+    var refreshBtn = document.getElementsByClassName('tab-view-option');
     checkUserLoginStatus();
     logoutBtn.addEventListener('click', logoutUser);
     deleteBtn[0].addEventListener('click', removeSelectedTabs);
+    refreshBtn[2].addEventListener('click', waitAndRemoveIcons);
     setTimeout(function(){addClickHandlersToTabs()}, 800);
     console.log('content script loaded');
+}
+
+function waitAndRemoveIcons(){
+    setTimeout(removeOpenIconOnWebpage, 500)
 }
 
 /**
 * Add click handler to each tab container on webpage
 */
 function addClickHandlersToTabs(){
+    console.log('icons')
     removeOpenIconOnWebpage();
     var closeBtn = document.getElementsByClassName("close-favicon");
     for(var index = 0; index < closeBtn.length ; index++ ){

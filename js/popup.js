@@ -1,11 +1,11 @@
-var lengthOfString = 40;
-var port = chrome.runtime.connect({
+const lengthOfString = 40;
+const port = chrome.runtime.connect({
 	name: 'tab'
 });
+const greenInactiveTime = 20;
+const yellowInactiveTime = 60;
+const redInactiveTime = 180;
 var inactiveTabCount = 0;
-var greenInactiveTime = 20;
-var yellowInactiveTime = 60;
-var redInactiveTime = 180;
 
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
@@ -13,6 +13,8 @@ var redInactiveTime = 180;
 var redoBtn = document.getElementsByClassName('fa-exclamation-triangle')[0]; 
 document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
+document.getElementById('title').addEventListener('click', openWebpage);
+document.getElementById('login').addEventListener('click', openWebpage);
 redoBtn.addEventListener('click', getAllNewTabData);
 redoBtn.addEventListener('mouseover', showAlertMessage.bind(null, ".redo-tabs p"));
 redoBtn.addEventListener('mouseout', hideAlertMessage.bind(null, ".redo-tabs p"));
@@ -255,6 +257,28 @@ function clearTabDOMElements(container){
 	}
 }
 
+
+/**
+ * Checks if already a tab for "Close Your Tabs", and either activates it or makes a new tab 
+ */
+function openWebpage(website){
+	var allTitles = document.getElementsByClassName('title-container');
+
+	var closeYourTabsExists = false; 
+	for(var title = 0 ; title < allTitles.length ; title++){
+		var tabElement = allTitles[title]; 
+		var textTitle = tabElement.textContent; 
+		let domain = (textTitle).match(/close your tabs/gi);
+		if(domain){
+			var parent =  tabElement.closest('.tab-information');
+			parent.click();
+			return; 	
+		}
+	}
+	chrome.tabs.create({
+		url: 'https://www.closeyourtabs.com'
+	})
+}
 
 
 //this is a solution to a Mac issue with extension. Macs animate the extension open, so not having a set width can result in the window not having enough height to show the content

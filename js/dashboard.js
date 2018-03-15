@@ -42,7 +42,6 @@ function removeSingleTab(event){
 function removeSelectedTabs(){
     var tabContainers = document.getElementsByClassName('tab-container');
     for(var tab = 0; tab < tabContainers.length; tab++){
-
         var parent = tabContainers[tab];
         var descendents = parent.childNodes;
         var title = descendents[1].childNodes[0].innerText;
@@ -51,7 +50,14 @@ function removeSelectedTabs(){
         if(!domain && classes.indexOf('tab-selected') !== -1){
             removeElement(tabContainers[tab]);
         }
+
+        
+
     }
+
+    if(Object.keys(user.tabsSortedByWindow).length === 0){
+        chrome.tabs.create();
+    }; 
 }
 
 /**
@@ -86,7 +92,6 @@ function checkUserLoginStatus(){
 
 function removeOpenIconOnWebpage(){
     var openIcon = document.getElementsByClassName('open-favicon');
-    console.log(openIcon)
     while(openIcon.length){
         var icon = openIcon[0];
         var container = icon.closest('.tab-utilities-container');
@@ -116,7 +121,6 @@ function extensionAction(){
     var tabInfo = {};
     tabInfo['window'] = window;
     tabInfo['index'] = index; 
-    console.log(tabInfo)
     chrome.runtime.sendMessage({type: "highlightTab", data: tabInfo});
 }
 

@@ -12,8 +12,6 @@ class User {
         this.tabsSortedByWindow = {};
         this.activeTabIndex = {};
         this.tabIds = {};
-        this.name = '';
-        this.photo = '';
         this.detachedTabInfo = {
             uniqueId: null
         };

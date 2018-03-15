@@ -17,29 +17,27 @@ function init(){
 }
 
 function waitAndRemoveIcons(){
-    setTimeout(removeOpenIconOnWebpage, 500)
+    setTimeout(removeOpenIconsOnWebpage, 500)
 }
 
 /**
 * Add click handler to each tab container on webpage
 */
 function addClickHandlersToTabs(){
-    console.log('icons')
-    removeOpenIconOnWebpage();
+    removeOpenIconsOnWebpage();
     var closeBtn = document.getElementsByClassName("close-favicon");
     for(var index = 0; index < closeBtn.length ; index++ ){
-        document.querySelector('.main-tab-area').addEventListener('click', removeSingleTab)
+        document.querySelector('.main-tab-area').addEventListener('click', extensionAction.bind(null, 'fa-times', 'removeTab'))
     }
 }
 
 /**
-* Event when X clicked on tab container and calls remove Element
-*@param {object} event 
+* Finds parent container and sends tab info to extension along with message type
 */
-function removeSingleTab(event){
-    if(event.target.parentElement.classList[1] === 'fa-times' || event.target.classList[1] === 'fa-times'){
-        var parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
-        removeElement(parent);
+function extensionAction(className, messageType){
+    if(event.target.parentElement.classList[1] === className || event.target.classList[1] === className){
+        parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
+        sendTabInfoToExtension(parent, messageType)
     }
 }
 
@@ -55,13 +53,9 @@ function removeSelectedTabs(){
         let domain = (title).match(/close your tabs/gi);
         var classes = tabContainers[tab].className.split(" ");
         if(!domain && classes.indexOf('tab-selected') !== -1){
-            removeElement(tabContainers[tab]);
+            sendTabInfoToExtension(tabContainers[tab], "removeTab");
         }
-
-        
-
     }
-
     if(Object.keys(user.tabsSortedByWindow).length === 0){
         chrome.tabs.create();
     }; 
@@ -71,7 +65,7 @@ function removeSelectedTabs(){
 * Remove element from database and window
 *@param {object} parent 
 */
-function removeElement(parent){
+function sendTabInfoToExtension(parent, messageType){
     if(!parent){
         return; 
     }
@@ -80,7 +74,7 @@ function removeElement(parent){
     var tabInfo = {};
     tabInfo['window'] = window;
     tabInfo['index'] = index; 
-    chrome.runtime.sendMessage({type: "removeTab", data: tabInfo});
+    chrome.runtime.sendMessage({type: messageType, data: tabInfo});
 }
 
 /**
@@ -97,7 +91,10 @@ function checkUserLoginStatus(){
     chrome.runtime.sendMessage({type: "checkLogin"});
 }
 
-function removeOpenIconOnWebpage(){
+/**
+* Loops through all tab DOM elements and removes open Icon and appends a new one
+*/
+function removeOpenIconsOnWebpage(){
     var openIcon = document.getElementsByClassName('open-favicon');
     while(openIcon.length){
         var icon = openIcon[0];
@@ -109,26 +106,8 @@ function removeOpenIconOnWebpage(){
         newIcon.classList.add('fas', 'fa-external-link-alt');
         iconContainer.appendChild(newIcon);
         container.prepend(iconContainer);
-        iconContainer.addEventListener('click', extensionAction);
+        iconContainer.addEventListener('click', extensionAction.bind(null, 'fa-external-link-alt', "highlightTab"));
     }
-}
-
-function extensionAction(){
-    var parent = null; 
-    if(event.target.parentElement.classList[1] === 'fa-external-link-alt' || event.target.classList[1] === 'fa-external-link-alt'){
-        parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
-    }
-
-
-    if(!parent){
-        return; 
-    }
-    var window = parent.getAttribute('data-windowid');
-    var index = parent.getAttribute('data-tabindex');
-    var tabInfo = {};
-    tabInfo['window'] = window;
-    tabInfo['index'] = index; 
-    chrome.runtime.sendMessage({type: "highlightTab", data: tabInfo});
 }
 
 init();

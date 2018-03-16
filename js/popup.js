@@ -30,7 +30,7 @@ port.onMessage.addListener(function (response) {
 	if (response.sessionInfo) {
 		clearTabDOMElements('tab-container');
 		var windows = response.sessionInfo.allTabs;
-		var inactiveTabCount = 0; 
+		inactiveTabCount = 0; 
 		for (var window in windows) {
 			var windowTabContainer = document.createElement('div');
 			windowTabContainer.classList.add('window');
@@ -49,7 +49,6 @@ port.onMessage.addListener(function (response) {
 			} else {
 				document.getElementById('tab-container').appendChild(windowTabContainer);
 			}
-
 		}
 		setBadge(inactiveTabCount);
 	} else if (response.loginStatus) {
@@ -76,7 +75,7 @@ function createDomElement(tabObject) {
 		tabObject.color = 'white';
 	} else if (timeElapsed < yellowInactiveTime) {
 		tabObject.color = 'green';
-	} else if (timeElapsed < yellowInactiveTime) {
+	} else if (timeElapsed < redInactiveTime) {
 		tabObject.color = 'yellow';
 	} else {
 		tabObject.color = 'red';

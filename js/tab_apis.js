@@ -8,6 +8,15 @@ chrome.runtime.onStartup.addListener(function (details) {
 });
 
 /**
+ * Runs function when first installed
+ *@param {object} details
+ *calls getAllTabs
+ */
+chrome.runtime.onInstalled.addListener(function (details) {
+    createNewUser();
+});
+
+/**
  * Remove tab and tab id from user, calls database to remove
  *@param {integer} id iD of tab removed
  *@param {object} removeInfo windowid

@@ -1,4 +1,20 @@
 /**
+ * Listens for when the extension is enabled to create a new user
+ *@param {object} info
+ */
+chrome.management.onEnabled.addListener(function(info){
+    console.log(info)
+    // createNewUser();
+
+})
+
+chrome.management.onDisabled.addListener(function(info){
+    console.log(info)
+})
+
+
+
+/**
  * Runs function when first browser loads
  *@param {object} details
  *calls getAllTabs

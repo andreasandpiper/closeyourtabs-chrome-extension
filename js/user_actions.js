@@ -2,6 +2,7 @@ var user;
 const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME = 'connect.sid';
 var alertInactiveTime = 180;
+var currentVersion = "0.0.6"; 
 
 /**
  * User class keeps track of current tab information and logged in status
@@ -412,3 +413,13 @@ function dataObjectForUpdatedTab(tab) {
     }
     return dataForServer;
 }
+
+function init(){
+    var details = chrome.app.getDetails()
+    if(details.version !== currentVersion){
+        var message = document.getElementById("updateVersion");
+        message.textContent = "Your version is out of date. Please update at chrome://extensions/";
+    }
+}
+
+init()

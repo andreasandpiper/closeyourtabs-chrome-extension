@@ -3,7 +3,7 @@
 
 	"name": "Close Your Tabs",
 	"description": "Manages and displays all tabs in browser and color-codes them depending on the duration of time since active use.",
-	"version": "0.0.5",
+	"version": "0.0.6",
 
 	"browser_action": {
 		"default_icon": "images/app-logo-favicon-32.png",
@@ -16,7 +16,8 @@
 		"<all_urls>",
 		"https://www.closeyourtabs.com/dashboard*",
 		"cookies",
-		"webNavigation"
+		"webNavigation",
+		"management"
 	],
 	"background": {
 		"scripts": ["js/user_actions.js", "js/server_requests.js", "js/tab_apis.js", "js/messaging_between_scripts.js"]

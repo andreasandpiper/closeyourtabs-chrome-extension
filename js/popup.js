@@ -5,7 +5,6 @@ const port = chrome.runtime.connect({
 const greenInactiveTime = 20;
 const yellowInactiveTime = 60;
 const redInactiveTime = 180;
-const currentVersion = "0.0.5";
 var inactiveTabCount = 0;
 
 
@@ -29,7 +28,6 @@ redoBtn.addEventListener('mouseout', hideAlertMessage.bind(null, ".redo-tabs .re
  *@param {object} response 
  */
 port.onMessage.addListener(function (response) {
-	checkVersion();
 	if (response.sessionInfo) {
 		clearTabDOMElements('tab-container');
 		var windows = response.sessionInfo.allTabs;
@@ -278,28 +276,6 @@ function openWebpage(website){
 	chrome.tabs.create({
 		url: 'https://www.closeyourtabs.com'
 	})
-}
-
-/**
- * Checks version number and adds a text notification on the bottom to update 
- */
-function checkVersion(){
-	var message = document.getElementById("updateVersion");
-	var details = chrome.app.getDetails();
-	if(details.version !== currentVersion){
-		var link = document.createElement("span");
-		var linkText = document.createTextNode("chrome://extensions");
-		link.appendChild(linkText);
-		link.addEventListener("click", function (){
-			chrome.tabs.create({url: "chrome://extensions"})
-		})
-
-		message.textContent = "This extension is out of date. Get the latest features at ";
-		message.append(link);
-	} else {
-		message.textContent = "Up to date";
-
-	}
 }
 
 sendMessageToGetTabInfo();

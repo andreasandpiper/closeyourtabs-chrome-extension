@@ -7,6 +7,7 @@ const yellowInactiveTime = 60;
 const redInactiveTime = 180;
 var inactiveTabCount = 0;
 
+
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
  */
@@ -276,17 +277,5 @@ function openWebpage(website){
 		url: 'https://www.closeyourtabs.com'
 	})
 }
-
-
-//this is a solution to a Mac issue with extension. Macs animate the extension open, so not having a set width can result in the window not having enough height to show the content
-//found this solution at https://bugs.chromium.org/p/chromium/issues/detail?id=428044 
-// document.body.style.opacity = 0;
-// document.body.style.transition = 'opacity ease-out .4s';
-
-// requestAnimationFrame(function () {
-// 	document.body.style.opacity = 1;
-// });
-
-//End of Code
 
 sendMessageToGetTabInfo();

@@ -275,3 +275,18 @@ a {
 .reset {
 	color: #ffffff;
 }
+
+#updateVersion {
+	color: #ffffff;
+	display: inline-block; 
+	text-align: left;
+}
+
+#updateVersion span {
+	color: rgb(233, 229, 153);
+}
+
+#updateVersion span:hover {
+	filter: brightness(80%);
+	cursor: pointer;
+}

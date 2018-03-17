@@ -412,3 +412,12 @@ function dataObjectForUpdatedTab(tab) {
     }
     return dataForServer;
 }
+
+
+function init(){
+    if(!user){
+        createNewUser();
+    }
+}
+
+init();

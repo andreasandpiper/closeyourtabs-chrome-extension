@@ -92,7 +92,11 @@ function removeOpenIconsOnWebpage(){
 }
 
 
-
+/**
+* Remove highlight icon from webpage and insert new one with extension event listener
+*@param {object} icon 
+*Call addDeleteBtn
+*/
 function removeHighlightIconAndAddNew(icon){
     var container = icon.closest('.tab-utilities-container');
     var newIcon = document.createElement('i');
@@ -104,29 +108,21 @@ function removeHighlightIconAndAddNew(icon){
     container.prepend(iconContainer);
     addDeleteBtn(container);
     iconContainer.addEventListener('click', extensionAction.bind(null, 'fa-external-link-alt', "highlightTab"));
+}
 
-    }
-
+/**
+* Add delete button to webpage
+*@param {object} container 
+*/
 function addDeleteBtn(container){
-    var div = document.createElement("div")
-    div.classList.add("tab-utility", "close-favicon");
+    var iconContainer = document.createElement("div")
+    iconContainer.classList.add("tab-utility", "close-favicon");
     var closeTabIcon = document.createElement('i');
     closeTabIcon.classList.add('fas', 'fa-times');
-    div.appendChild(closeTabIcon);
-    container.appendChild(div);
-    console.log(div)
+    iconContainer.appendChild(closeTabIcon);
+    container.appendChild(iconContainer);
+    document.querySelector('.main-tab-area').addEventListener('click', extensionAction.bind(null, 'fa-times', 'removeTab'))
+
 }
 
 init();
-
-
-/**
-* Add click handler to each tab container on webpage
-*/
-// function addClickHandlersToTabs(){
-//     removeOpenIconsOnWebpage();
-//     var closeBtn = document.getElementsByClassName("close-favicon");
-//     for(var index = 0; index < closeBtn.length ; index++ ){
-//         document.querySelector('.main-tab-area').addEventListener('click', extensionAction.bind(null, 'fa-times', 'removeTab'))
-//     }
-// }

@@ -1,9 +1,6 @@
 const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME =  'connect.sid'; 
 
-// var deleteBtn = document.getElementsByClassName('sidebar-delete');
-// deleteBtn[0].addEventListener('click', removeSelectedTabs);
-
 /**
 * Calls when JS file loaded
 */
@@ -13,7 +10,7 @@ function init(){
     checkUserLoginStatus();
     logoutBtn.addEventListener('click', logoutUser);
     refreshBtn[2].addEventListener('click', waitAndRemoveIcons);
-    console.log('content script loaded');
+    addWebpageDeleteMasterButton();
     setTimeout(removeOpenIconsOnWebpage, 500)
 }
 
@@ -25,6 +22,7 @@ function waitAndRemoveIcons(){
 * Finds parent container and sends tab info to extension along with message type
 */
 function extensionAction(className, messageType){
+
     if(event.target.parentElement.classList[1] === className || event.target.classList[1] === className){
         parent = event.target.closest('.tab-container') || event.target.closest('.list-tab-container');
         sendTabInfoToExtension(parent, messageType)
@@ -36,19 +34,13 @@ function extensionAction(className, messageType){
 */
 function removeSelectedTabs(){
     var tabContainers = document.getElementsByClassName('tab-container');
-    for(var tab = 0; tab < tabContainers.length; tab++){
-        var parent = tabContainers[tab];
-        var descendents = parent.childNodes;
-        var title = descendents[1].childNodes[0].innerText;
-        let domain = (title).match(/close your tabs/gi);
-        var classes = tabContainers[tab].className.split(" ");
-        if(!domain && classes.indexOf('tab-selected') !== -1){
-            sendTabInfoToExtension(tabContainers[tab], "removeTab");
-        }
+    var selectedTabs = document.getElementsByClassName('tab-selected');
+    if(tabContainers.length === selectedTabs.length){
+        chrome.runtime.sendMessage({type: "createNewTab"});
     }
-    if(Object.keys(user.tabsSortedByWindow).length === 0){
-        chrome.tabs.create();
-    }; 
+    for(var tab in selectedTabs){
+        sendTabInfoToExtension(selectedTabs[tab], "removeTab");
+    } 
 }
 
 /**
@@ -56,7 +48,7 @@ function removeSelectedTabs(){
 *@param {object} parent 
 */
 function sendTabInfoToExtension(parent, messageType){
-    if(!parent){
+    if(typeof parent !== "object"){
         return; 
     }
     var window = parent.getAttribute('data-windowid');
@@ -125,4 +117,17 @@ function addDeleteBtn(container){
 
 }
 
+/**
+* Add delete button to webpage sidebar 
+*/
+function addWebpageDeleteMasterButton(){
+    var container = document.querySelector(".side-bar-container");
+    var button = document.createElement('button');
+    var text = document.createTextNode("DELETE");
+    button.appendChild(text);
+    button.addEventListener('click', removeSelectedTabs);
+    container.prepend(button);
+}
+
 init();
+

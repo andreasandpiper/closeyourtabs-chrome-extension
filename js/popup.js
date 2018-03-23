@@ -273,7 +273,7 @@ function openWebpage(website){
 		}
 	}
 	chrome.tabs.create({
-		url: 'https://www.closeyourtabs.com'
+		url: 'https://www.closeyourtabs.com/dashboard'
 	})
 }
 

@@ -6,11 +6,13 @@
  */
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-        if (request.type === "checkLogin") {
+        if (request.type === "createNewTab"){
+            chrome.tabs.create({url: BASE_URL});
+        }else if (request.type === "checkLogin") {
             if (!user.loggedIn) {
                 user.login();
             }
-        } else if (request.type == "removeTab") {
+        } else if (request.type === "removeTab") {
             var window = request.data.window;
             var index = request.data.index;
             var tabID = user.tabsSortedByWindow[window][index].id;
@@ -24,8 +26,7 @@ chrome.runtime.onMessage.addListener(
                     success: false
                 })
             }
-
-        } else if (request.type == "logoutUser") {
+        } else if (request.type === "logoutUser") {
             if (user.loggedIn) {
                 user.logout();
             }
@@ -33,7 +34,7 @@ chrome.runtime.onMessage.addListener(
             if (!user.loggedIn) {
                 user.login();
             }
-        } else if (request.type = 'highlightTab') {
+        } else if (request.type === 'highlightTab') {
             chrome.tabs.highlight({
                 tabs: parseInt(request.data.index),
                 windowId: parseInt(request.data.window)
@@ -41,7 +42,7 @@ chrome.runtime.onMessage.addListener(
             chrome.windows.update(parseInt(request.data.window), {
                 focused: true
             });
-        }
+        } 
     });
 
 

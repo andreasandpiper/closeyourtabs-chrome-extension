@@ -175,10 +175,11 @@ chrome.windows.onRemoved.addListener(function (windowId) {
  * Listens for when an open link even from the popup and only run content script in dashboard
  *@param {object} details
  */
-chrome.webNavigation.onHistoryStateUpdated.addListener(function (details) {
+chrome.webNavigation.onCompleted.addListener(function (details) {
     if (details.url === 'https://www.closeyourtabs.com/dashboard' || details.url === 'https://www.closeyourtabs.com/dashboard#') {
         chrome.tabs.executeScript(null, {
-            file: "dashboard.js"
+            file: "js/dashboard.js",
+            runAt: "document_end"
         });
     }
 });

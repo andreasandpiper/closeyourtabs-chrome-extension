@@ -2,6 +2,7 @@ var user;
 const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME = 'connect.sid';
 var alertInactiveTime = 180;
+var VERSION = chrome.runtime.getManifest().version;
 
 /**
  * User class keeps track of current tab information and logged in status
@@ -164,6 +165,9 @@ function updateTab(tab) {
  * Creates new instance of User
  */
 function createNewUser() {
+    if(user){
+        return;
+    }
     user = new User();
     chrome.windows.getAll(function (windows) {
         windows.forEach(function (window) {
@@ -413,11 +417,17 @@ function dataObjectForUpdatedTab(tab) {
     return dataForServer;
 }
 
+//FUTURE PROJECT: inform users of update
+// var object = {
+//     url: BASE_URL,
+//     name: "extension_version",
+// }
+// chrome.cookies.get(object, function(result){
+//     if(result.value !== VERSION){
+//         console.log('update extension')
+//     } 
+// })
 
-function init(){
-    if(!user){
-        createNewUser();
-    }
+if(!user){
+    createNewUser();
 }
-
-init();

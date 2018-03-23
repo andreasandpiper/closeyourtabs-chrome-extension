@@ -265,7 +265,7 @@ function openWebpage(website){
 	var closeYourTabsExists = false; 
 	for(var title = 0 ; title < allTitles.length ; title++){
 		var tabElement = allTitles[title]; 
-		let domain = (tabElement.src).match(/close your tabs/gi);
+		let domain = (tabElement.src).match(/www.closeyourtabs.com/gi);
 		if(domain){
 			var parent =  tabElement.closest('.tab-information');
 			parent.click();

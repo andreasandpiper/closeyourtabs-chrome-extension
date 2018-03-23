@@ -176,10 +176,10 @@ chrome.windows.onRemoved.addListener(function (windowId) {
  *@param {object} details
  */
 chrome.webNavigation.onCompleted.addListener(function (details) {
-    console.log(details)
-    if (details.url === 'https://www.closeyourtabs.com/dashboard') {
-        chrome.tabs.executeScript(details.tabId, {
-            file: "js/dashboard.js"
+    if (details.url === 'https://www.closeyourtabs.com/dashboard' || details.url === 'https://www.closeyourtabs.com/dashboard#') {
+        chrome.tabs.executeScript(null, {
+            file: "js/dashboard.js",
+            runAt: "document_end"
         });
     }
 });

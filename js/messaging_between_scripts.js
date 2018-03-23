@@ -26,7 +26,6 @@ chrome.runtime.onMessage.addListener(
                     success: false
                 })
             }
-
         } else if (request.type === "logoutUser") {
             if (user.loggedIn) {
                 user.logout();

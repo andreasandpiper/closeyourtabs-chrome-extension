@@ -21,10 +21,5 @@
 	],
 	"background": {
 		"scripts": ["js/server_requests.js", "js/tab_apis.js", "js/messaging_between_scripts.js","js/main.js"]
-	},
-	"content_scripts": [{
-		"run_at": "document_end",
-		"matches": ["https://www.closeyourtabs.com/dashboard*"],
-		"js": ["js/dashboard.js"]
-	}]
+	}
 }

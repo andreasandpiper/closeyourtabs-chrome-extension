@@ -11,7 +11,7 @@ function init(){
     logoutBtn.addEventListener('click', logoutUser);
     refreshBtn[2].addEventListener('click', waitAndRemoveIcons);
     addWebpageDeleteMasterButton();
-    setTimeout(removeOpenIconsOnWebpage, 500)
+    setTimeout(removeOpenIconsOnWebpage, 100)
 }
 
 function waitAndRemoveIcons(){

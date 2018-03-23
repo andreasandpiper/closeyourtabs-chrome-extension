@@ -260,13 +260,12 @@ function clearTabDOMElements(container){
  * Checks if already a tab for "Close Your Tabs", and either activates it or makes a new tab 
  */
 function openWebpage(website){
-	var allTitles = document.getElementsByClassName('title-container');
+	var allTitles = document.getElementsByClassName('favicon-container');
 
 	var closeYourTabsExists = false; 
 	for(var title = 0 ; title < allTitles.length ; title++){
 		var tabElement = allTitles[title]; 
-		var textTitle = tabElement.textContent; 
-		let domain = (textTitle).match(/close your tabs/gi);
+		let domain = (tabElement.src).match(/close your tabs/gi);
 		if(domain){
 			var parent =  tabElement.closest('.tab-information');
 			parent.click();

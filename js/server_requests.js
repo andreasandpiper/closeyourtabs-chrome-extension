@@ -41,13 +41,8 @@ function sendDataToServer(method, action, data) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             var result = JSON.parse(xhr.responseText);
-            if(result.type === "UPDATE" && !result.success){
-                console.log(xhr.responseText);
-            } else if (xhr.status === 200) {
-                console.log(xhr.responseText);
-            } else {
+            if (result.type != "UPDATE" && !result.success) {
                 user.logout();
-                console.log('connect error', xhr.responseText);
             }
         }
     };
@@ -95,7 +90,6 @@ function createNewTabRequest(tabObject, index) {
         if (xhr.readyState == 4) {
             if (xhr.status === 200) {
                 var result = JSON.parse(xhr.responseText)
-                console.log(result)
                 if (result.success) {
                     var result = JSON.parse(xhr.responseText).data.insertId;
                     var tabObj = user.tabsSortedByWindow[tabObject.windowID][index];

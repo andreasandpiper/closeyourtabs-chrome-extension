@@ -61,7 +61,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     }
 })
 
-
 /**
  * Listens for when a tab becomes active by user clicking on the tab
  *@param {object} activeInfo includes props about the tab clicked
@@ -98,10 +97,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
     })
 })
 
-
-
 /**
-
 * Listens to for when a tab moves in a window
 *@param { integer } tabId id of tab moved
 *@param { object } moveInfo fromIndex, toIndex, windowId
@@ -116,14 +112,11 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
         var dataForServer = dataObjectForUpdatedTab(user.tabsSortedByWindow[moveInfo.windowId][moveInfo.toIndex]);
         sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
     }
-
     if (moveInfo.fromIndex > moveInfo.toIndex) {
         updateIndex(moveInfo.toIndex, moveInfo.fromIndex, moveInfo.windowId);
     } else {
         updateIndex(moveInfo.fromIndex, moveInfo.toIndex + 1, moveInfo.windowId);
-
     }
-
 })
 
 
@@ -147,8 +140,6 @@ chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
         sendDataToServer('DELETE', `${BASE_URL}/tabs/database`, tabObject);
     }
     updateIndex(detachInfo.oldPosition, user.tabsSortedByWindow[detachInfo.oldWindowId].length, detachInfo.oldWindowId);
-
-
 })
 
 /**

@@ -6,9 +6,7 @@
  */
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-        if (request.type === "createNewTab"){
-            chrome.tabs.create({url: BASE_URL});
-        }else if (request.type === "checkLogin") {
+        if (request.type === "checkLogin") {
             if (!user.loggedIn) {
                 user.login();
             }

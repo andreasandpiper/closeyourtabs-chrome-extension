@@ -35,9 +35,6 @@ function extensionAction(className, messageType){
 function removeSelectedTabs(){
     var tabContainers = document.getElementsByClassName('tab-container');
     var selectedTabs = document.getElementsByClassName('tab-selected');
-    if(tabContainers.length === selectedTabs.length){
-        chrome.runtime.sendMessage({type: "createNewTab"});
-    }
     for(var tab in selectedTabs){
         sendTabInfoToExtension(selectedTabs[tab], "removeTab");
     } 

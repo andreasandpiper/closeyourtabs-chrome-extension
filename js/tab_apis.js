@@ -13,6 +13,12 @@ chrome.runtime.onStartup.addListener(function (details) {
  *calls getAllTabs
  */
 chrome.runtime.onInstalled.addListener(function (details) {
+    var object = {
+        url: BASE_URL,
+        name: "extension_version",
+        value: VERSION
+    }
+    chrome.cookies.set(object)
     createNewUser();
 });
 

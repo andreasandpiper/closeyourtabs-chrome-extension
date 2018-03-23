@@ -1,34 +1,24 @@
 const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME =  'connect.sid'; 
 
+// var deleteBtn = document.getElementsByClassName('sidebar-delete');
+// deleteBtn[0].addEventListener('click', removeSelectedTabs);
+
 /**
 * Calls when JS file loaded
 */
 function init(){
     var logoutBtn = document.getElementById('log-out-button');
-    var deleteBtn = document.getElementsByClassName('sidebar-delete');
     var refreshBtn = document.getElementsByClassName('tab-view-option');
     checkUserLoginStatus();
     logoutBtn.addEventListener('click', logoutUser);
-    deleteBtn[0].addEventListener('click', removeSelectedTabs);
     refreshBtn[2].addEventListener('click', waitAndRemoveIcons);
-    setTimeout(function(){addClickHandlersToTabs()}, 800);
     console.log('content script loaded');
+    setTimeout(removeOpenIconsOnWebpage, 500)
 }
 
 function waitAndRemoveIcons(){
     setTimeout(removeOpenIconsOnWebpage, 500)
-}
-
-/**
-* Add click handler to each tab container on webpage
-*/
-function addClickHandlersToTabs(){
-    removeOpenIconsOnWebpage();
-    var closeBtn = document.getElementsByClassName("close-favicon");
-    for(var index = 0; index < closeBtn.length ; index++ ){
-        document.querySelector('.main-tab-area').addEventListener('click', extensionAction.bind(null, 'fa-times', 'removeTab'))
-    }
 }
 
 /**
@@ -97,19 +87,42 @@ function checkUserLoginStatus(){
 function removeOpenIconsOnWebpage(){
     var openIcon = document.getElementsByClassName('open-favicon');
     while(openIcon.length){
-        var icon = openIcon[0];
-        var container = icon.closest('.tab-utilities-container');
-        var newIcon = document.createElement('i');
-        var iconContainer = document.createElement('div');
-        iconContainer.classList.add('tab-utility', 'highlight-icon');
-        icon.remove();
-        newIcon.classList.add('fas', 'fa-external-link-alt');
-        iconContainer.appendChild(newIcon);
-        container.prepend(iconContainer);
-        iconContainer.addEventListener('click', extensionAction.bind(null, 'fa-external-link-alt', "highlightTab"));
+        removeHighlightIconAndAddNew(openIcon[0]);
     }
 }
 
+
+/**
+* Remove highlight icon from webpage and insert new one with extension event listener
+*@param {object} icon 
+*Call addDeleteBtn
+*/
+function removeHighlightIconAndAddNew(icon){
+    var container = icon.closest('.tab-utilities-container');
+    var newIcon = document.createElement('i');
+    var iconContainer = document.createElement('div');
+    iconContainer.classList.add('tab-utility', 'highlight-icon');
+    icon.remove();
+    newIcon.classList.add('fas', 'fa-external-link-alt');
+    iconContainer.appendChild(newIcon);
+    container.prepend(iconContainer);
+    addDeleteBtn(container);
+    iconContainer.addEventListener('click', extensionAction.bind(null, 'fa-external-link-alt', "highlightTab"));
+}
+
+/**
+* Add delete button to webpage
+*@param {object} container 
+*/
+function addDeleteBtn(container){
+    var iconContainer = document.createElement("div")
+    iconContainer.classList.add("tab-utility", "close-favicon");
+    var closeTabIcon = document.createElement('i');
+    closeTabIcon.classList.add('fas', 'fa-times');
+    iconContainer.appendChild(closeTabIcon);
+    container.appendChild(iconContainer);
+    document.querySelector('.main-tab-area').addEventListener('click', extensionAction.bind(null, 'fa-times', 'removeTab'))
+
+}
+
 init();
-
-

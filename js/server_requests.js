@@ -41,7 +41,9 @@ function sendDataToServer(method, action, data) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             var result = JSON.parse(xhr.responseText);
-            if (xhr.status === 200) {
+            if(result.type === "UPDATE" && !result.success){
+                console.log(xhr.responseText);
+            } else if (xhr.status === 200) {
                 console.log(xhr.responseText);
             } else {
                 user.logout();

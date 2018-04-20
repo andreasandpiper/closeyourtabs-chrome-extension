@@ -11,16 +11,14 @@ var inactiveTabCount = 0;
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
  */
-// var redoBtn = document.getElementsByClassName('fa-exclamation-triangle')[0]; 
+
 document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
 document.getElementById('title').addEventListener('click', openWebpage);
 document.getElementById('login').addEventListener('click', openWebpage);
 document.getElementsByClassName('fa-info-circle')[0].addEventListener('mouseover', showAlertMessage.bind(null, ".information"));
 document.getElementsByClassName('fa-info-circle')[0].addEventListener('mouseout', hideAlertMessage.bind(null, ".information"));
-// redoBtn.addEventListener('click', getAllNewTabData);
-// redoBtn.addEventListener('mouseover', showAlertMessage.bind(null, ".redo-tabs .reset"));
-// redoBtn.addEventListener('mouseout', hideAlertMessage.bind(null, ".redo-tabs .reset"));
+
 
 /**
  * Port messaging between script and extension, catches response from extension 

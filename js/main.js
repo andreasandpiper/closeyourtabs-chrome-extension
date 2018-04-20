@@ -1,8 +1,7 @@
 var user;
 const BASE_URL = 'https://www.closeyourtabs.com';
 const COOKIE_NAME = 'connect.sid';
-var alertInactiveTime = 180;
-var VERSION = chrome.runtime.getManifest().version;
+const alertInactiveTime = 180;
 
 /**
  * User class keeps track of current tab information and logged in status
@@ -62,9 +61,8 @@ class User {
                             }
                         }
                     }
-
                 }
-            }
+            } 
         })
     }
     sendAllTabsToServer() {
@@ -125,22 +123,18 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
         updatedElaspedDeactivation();
-        chrome.tabs.captureVisibleTab({
-            quality: 5
-        }, function (dataUrl) {
-            tab.screenshot = dataUrl;
-            if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
-                var createdTab = createNewTab(tab);
-                if (user.loggedIn) {
-                    var dataForServer = dataObjectForNewTab(createdTab);
-                    createNewTabRequest(dataForServer, createdTab.index);
-                }
-            } else {
-                var updatedTab = updateTab(tab);
-                if (user.loggedIn) {
-                    var dataForServer = dataObjectForUpdatedTab(updatedTab);
-                    sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
-                }
+        if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
+            var createdTab = createNewTab(tab);
+
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForNewTab(createdTab);
+                createNewTabRequest(dataForServer, createdTab.index);
+            }
+        } else {
+            var updatedTab = updateTab(tab);
+            if (user.loggedIn) {
+                var dataForServer = dataObjectForUpdatedTab(updatedTab);
+                sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
             }
         })
     }
@@ -159,6 +153,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
         }
         updatePreviousActiveTab(tab.windowId);
         user.activeTabIndex[tab.windowId] = tab.index;
+
         var tabWindowArray = user.tabsSortedByWindow[window.id];
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
             chrome.tabs.captureVisibleTab({
@@ -248,6 +243,24 @@ chrome.windows.onRemoved.addListener(function (windowId) {
 });
 
 /**
+ * Runs function when first browser loads
+ *@param {object} details
+ *calls getAllTabs
+ */
+chrome.runtime.onStartup.addListener(function (details) {
+    createNewUser();
+});
+
+/**
+ * Runs function when first installed
+ *@param {object} details
+ *calls getAllTabs
+ */
+chrome.runtime.onInstalled.addListener(function (details) {
+    createNewUser();
+});
+
+/**
  * Listens for when an open link even from the popup and only run content script in dashboard
  *@param {object} details
  */
@@ -258,6 +271,95 @@ chrome.webNavigation.onCompleted.addListener(function (details) {
             runAt: "document_end"
         });
     }
+});
+
+/**
+ * Listens for messages from content script
+ *@param {object} request
+ *@param {object} sender
+ *@param {function} sendResponse
+ */
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.type === "checkLogin") {
+            if (!user.loggedIn) {
+                user.login();
+            }
+        } else if (request.type == "removeTab") {
+            var window = request.data.window;
+            var index = request.data.index;
+            var tabID = user.tabsSortedByWindow[window][index].id;
+            if (tabID >= 0) {
+                chrome.tabs.remove(tabID);
+                sendResponse({
+                    success: true
+                })
+            } else {
+                sendResponse({
+                    success: false
+                })
+            }
+
+        } else if (request.type == "logoutUser") {
+            if (user.loggedIn) {
+                user.logout();
+            }
+        } else if (request.type === "checkLogin") {
+            if (!user.loggedIn) {
+                user.login();
+            }
+        }else if (request.type === 'highlightTab') {
+            chrome.tabs.highlight({
+                tabs: parseInt(request.data.index),
+                windowId: parseInt(request.data.window)
+            });
+            chrome.windows.update(parseInt(request.data.window), {
+                focused: true
+            });
+        } 
+    });
+
+
+/**
+ * Runs function when receive a message from the shared port, (popup content script)
+ *@param {object} port
+ *@param {object} message
+ * sends response back to the caller
+ */
+chrome.runtime.onConnect.addListener(function (port) {
+    console.assert(port.name == 'tab');
+    port.onMessage.addListener(function (message) {
+        if (message.type == 'popup') {
+            updatedElaspedDeactivation();
+            var responseObject = {};
+            responseObject.userStatus = user.loggedIn;
+            responseObject.allTabs = user.tabsSortedByWindow;
+            chrome.windows.getAll(function (window) {
+                for (let array = 0; array < window.length; array++) {
+                    if (window[array].focused === true) {
+                        responseObject.currentWindow = window[array].id;
+                        lastFocused = window[array].id;
+                    }
+                }
+                port.postMessage({
+                    sessionInfo: responseObject
+                });
+            })
+        } else if (message.type === 'refresh') {
+            updatedElaspedDeactivation();
+            chrome.windows.getLastFocused(function (window) {
+                var responseObject = {};
+                responseObject.userStatus = user.loggedIn;
+                responseObject.allTabs = user.tabsSortedByWindow;
+                responseObject.currentWindow = lastFocused;
+                port.postMessage({
+                    sessionInfo: responseObject
+                });
+            })
+        } else if (message.type === 'logout') {
+            user.logout();
+        }
+    });
 });
 
 /**
@@ -463,7 +565,8 @@ function updatedElaspedDeactivation() {
             if (!tab.highlighted) {
                 tab.inactiveTimeElapsed =
                     currentTime - tab.timeOfDeactivation;
-                let timeElapsed = tab.inactiveTimeElapsed / 60000; 
+                    let timeElapsed = tab.inactiveTimeElapsed / 60000; 
+
                 if(timeElapsed > alertInactiveTime){
                     overdueTabCount++;
                 }
@@ -744,14 +847,6 @@ function sendDataToServer(method, action, data) {
     var xhr = new XMLHttpRequest();
     xhr.open(method, action);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            var result = JSON.parse(xhr.responseText);
-            if (result.type != "UPDATE" && !result.success) {
-                user.logout();
-            }
-        }
-    };
     xhr.onerror = function () {
         user.logout();
     };
@@ -764,18 +859,6 @@ function sendDataToServer(method, action, data) {
 function requestToServerNoData(method, route) {
     var xhr = new XMLHttpRequest();
     xhr.open(method, route, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status === 200) {
-                var result = JSON.parse(xhr.responseText);
-                if (user.loggedIn) {
-                    user.sendAllTabsToServer();
-                }
-            } else {
-                user.logout();
-            }
-        }
-    };
     xhr.onerror = function () {
         user.logout();
     };
@@ -788,7 +871,6 @@ function requestToServerNoData(method, route) {
  *@param {object} tabObject the data that will be sent
  */
 function createNewTabRequest(tabObject, index) {
-
     var xhr = new XMLHttpRequest();
     xhr.open('POST', `${BASE_URL}/tabs`);
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -807,9 +889,6 @@ function createNewTabRequest(tabObject, index) {
                     } else {
                         deactivateTimeTab(result)
                     }
-
-                } else {
-                    user.logout();
                 }
             }
         }
@@ -820,6 +899,63 @@ function createNewTabRequest(tabObject, index) {
     xhr.send(JSON.stringify(tabObject));
 }
 
+/**
+ * Creates data object to send to server to CREATE a new tab
+ *@param {object} tab the data that will be sent
+ */
+function dataObjectForNewTab(tab) {
+    var dataForServer = {
+        windowID: tab.windowId,
+        tabTitle: tab.title,
+        activatedTime: 0,
+        deactivatedTime: 0,
+        browserTabIndex: tab.index,
+        url: tab.url,
+        favicon: tab.favIconUrl,
+        screenshot: '' 
+    };
+    return dataForServer;
+}
+
+/**
+ * Creates data object to send to server to UPDATE a previous tab
+ *@param {object} tab the data that will be sent
+ */
+function dataObjectForUpdatedTab(tab) {
+    var dataForServer = {
+        databaseTabID: tab.databaseTabID,
+        tabTitle: tab.title,
+        browserTabIndex: tab.index,
+        url: tab.url,
+        favicon: tab.favicon,
+        screenshot: '' 
+    }
+    return dataForServer;
+}
+
+/**
+ * Calls database to activate the time for tab
+ *@param {integer} uniqueID
+ *call sendDataToServer
+ */
+function activateTimeTab(uniqueID) {
+    var tabObject = {};
+    tabObject['databaseTabID'] = uniqueID;
+    sendDataToServer('PUT', `${BASE_URL}/tabs/activatedTime`, tabObject);
+}
+
+/**
+ * Calls database to deactivate the time for tab
+ *@param {integer} uniqueID 
+ *call sendDataToServer
+ */
+function deactivateTimeTab(uniqueID) {
+    if (uniqueID !== null) {
+        var tabObject = {};
+        tabObject['databaseTabID'] = uniqueID;
+        sendDataToServer('PUT', `${BASE_URL}/tabs/deactivatedTime`, tabObject)
+    }
+}
+
 if(!user){
     createNewUser();
-}

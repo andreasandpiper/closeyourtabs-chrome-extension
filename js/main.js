@@ -300,7 +300,15 @@ chrome.runtime.onMessage.addListener(
             if (!user.loggedIn) {
                 user.login();
             }
-        }
+        }else if (request.type === 'highlightTab') {
+            chrome.tabs.highlight({
+                tabs: parseInt(request.data.index),
+                windowId: parseInt(request.data.window)
+            });
+            chrome.windows.update(parseInt(request.data.window), {
+                focused: true
+            });
+        } 
     });
 
 

@@ -109,6 +109,7 @@ chrome.tabs.onRemoved.addListener(function (id, removeInfo) {
 */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (tab.url !== undefined && changeInfo.status == "complete") {
+        updatedElaspedDeactivation();
         if (user.tabIds[tab.windowId].indexOf(tab.id) === -1) {
             var createdTab = createNewTab(tab);
 
@@ -158,7 +159,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
                 activateTimeTab(user.tabsSortedByWindow[tab.windowId][tab.index].databaseTabID);
             }
         }
-
+        updatedElaspedDeactivation();
     })
 })
 
@@ -171,7 +172,7 @@ chrome.tabs.onHighlighted.addListener(function (hightlightInfo) {
 *@param { object } moveInfo fromIndex, toIndex, windowId
 */
 chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
-
+    updatedElaspedDeactivation();
     var tab = user.tabsSortedByWindow[moveInfo.windowId][moveInfo.fromIndex];
     user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.fromIndex, 1);
     user.tabsSortedByWindow[moveInfo.windowId].splice(moveInfo.toIndex, 0, tab);
@@ -197,7 +198,7 @@ chrome.tabs.onMoved.addListener(function (tabId, moveInfo) {
  *@param {object} detachInfo  oldPosition, oldWindowId
  */
 chrome.tabs.onDetached.addListener(function (tabId, detachInfo) {
-
+    updatedElaspedDeactivation();
     var tab = user.tabsSortedByWindow[detachInfo.oldWindowId][detachInfo.oldPosition];
     var tabIDIndex = user.tabIds[detachInfo.oldWindowId].indexOf(tabId);
     user.tabIds[detachInfo.oldWindowId].splice(tabIDIndex, 1);
@@ -300,7 +301,15 @@ chrome.runtime.onMessage.addListener(
             if (!user.loggedIn) {
                 user.login();
             }
-        }
+        }else if (request.type === 'highlightTab') {
+            chrome.tabs.highlight({
+                tabs: parseInt(request.data.index),
+                windowId: parseInt(request.data.window)
+            });
+            chrome.windows.update(parseInt(request.data.window), {
+                focused: true
+            });
+        } 
     });
 
 
@@ -705,4 +714,8 @@ function deactivateTimeTab(uniqueID) {
         tabObject['databaseTabID'] = uniqueID;
         sendDataToServer('PUT', `${BASE_URL}/tabs/deactivatedTime`, tabObject)
     }
+}
+
+if(!user){
+    createNewUser();
 }

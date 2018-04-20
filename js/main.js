@@ -96,12 +96,6 @@ chrome.runtime.onStartup.addListener(function (details) {
  *calls getAllTabs
  */
 chrome.runtime.onInstalled.addListener(function (details) {
-    var object = {
-        url: BASE_URL,
-        name: "extension_version",
-        value: VERSION
-    }
-    chrome.cookies.set(object)
     createNewUser();
 });
 
@@ -136,7 +130,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                 var dataForServer = dataObjectForUpdatedTab(updatedTab);
                 sendDataToServer('PUT', `${BASE_URL}/tabs`, dataForServer);
             }
-        })
+        }
     }
 })
 
@@ -959,3 +953,4 @@ function deactivateTimeTab(uniqueID) {
 
 if(!user){
     createNewUser();
+}

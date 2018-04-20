@@ -26,6 +26,7 @@ document.getElementsByClassName('fa-info-circle')[0].addEventListener('mouseout'
  *@param {object} response 
  */
 port.onMessage.addListener(function (response) {
+	console.log(response)
 	if (response.sessionInfo) {
 		clearTabDOMElements('tab-container');
 		var windows = response.sessionInfo.allTabs;

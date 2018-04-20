@@ -1,6 +1,7 @@
 * {
 	box-sizing: border-box;
 	margin: 0;
+	color: #000000; 
 }
 
 body {
@@ -47,7 +48,7 @@ a:focus {
 	height: 75%;
 }
 
-#tag-titles {
+#tab-container {
 	margin: 1% 0;
 	overflow: auto;
 	position: relative;
@@ -76,6 +77,11 @@ a:focus {
 	display: inline-block;
 	width: 79%;
 	padding-left: 2%;
+}
+
+.tab-information {
+	display: inline-block;
+	width: 90%;
 }
 
 .trashcan-container,
@@ -196,8 +202,12 @@ a {
 	background-color: rgb(156, 95, 88);
 }
 
-.green {
+.white {
 	background-color: #ffffff;
+}
+
+.green {
+	background-color: rgb(143, 182, 179);
 }
 
 .activetab {
@@ -224,4 +234,59 @@ a {
 
 #loading-message p {
 	font-weight: 600;
+}
+
+.redo-tabs{
+	text-align: right; 
+}
+
+.redo-tabs i{
+	color: #ffffff;
+	display: inline-block;
+	margin: 5px; 
+	font-size: 16px;
+}
+
+.redo-tabs i:hover {
+	color: rgb(233, 229, 153); 
+	cursor: pointer; 
+}
+
+.information, .reset {
+	position: absolute;
+	width: 50%; 
+	bottom: 25px;
+	right: 0; 
+	background-color: rgb(26, 54, 74);
+	padding: 5px;
+}
+
+.information h4 {
+	text-align: center; 
+	color: #ffffff;
+}
+
+.information p {
+	margin: 5px; 
+	padding: 5px; 
+	text-align: left;
+}
+
+.reset {
+	color: #ffffff;
+}
+
+#updateVersion {
+	color: #ffffff;
+	display: inline-block; 
+	text-align: left;
+}
+
+#updateVersion span {
+	color: rgb(233, 229, 153);
+}
+
+#updateVersion span:hover {
+	filter: brightness(80%);
+	cursor: pointer;
 }

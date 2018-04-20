@@ -1,9 +1,9 @@
 {
 	"manifest_version": 2,
 
-	"name": "Tab test",
-	"description": "Tracks the amount of time elapsed since active use of each tab in all windows.",
-	"version": "0.0.1",
+	"name": "Close Your Tabs",
+	"description": "Manages and displays all tabs in browser and color-codes them depending on the duration of time since active use.",
+	"version": "0.0.8",
 
 	"browser_action": {
 		"default_icon": "images/app-logo-favicon-32.png",
@@ -14,17 +14,12 @@
 		"storage",
 		"tabs",
 		"<all_urls>",
-		"http://www.closeyourtabs.com/dashboard",
-		"http://www.closeyourtabs.com/dashboard#",
+		"*://*/*",
+		"https://www.closeyourtabs.com/dashboard*",
 		"cookies",
 		"webNavigation"
 	],
 	"background": {
-		"scripts": ["background.js"]
-	},
-	"content_scripts": [{
-		"run_at": "document_end",
-		"matches": ["http://www.closeyourtabs.com/dashboard", "http://www.closeyourtabs.com/dashboard#"],
-		"js": ["dashboard.js"]
-	}]
+		"scripts": ["js/main.js"]
+	}
 }

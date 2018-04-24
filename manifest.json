@@ -3,7 +3,7 @@
 
 	"name": "Close Your Tabs",
 	"description": "Manages and displays all tabs in browser and color-codes them depending on the duration of time since active use.",
-	"version": "0.0.8",
+	"version": "0.0.9",
 
 	"browser_action": {
 		"default_icon": "images/app-logo-favicon-32.png",

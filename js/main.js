@@ -338,17 +338,6 @@ chrome.runtime.onConnect.addListener(function (port) {
                     sessionInfo: responseObject
                 });
             })
-        } else if (message.type === 'refresh') {
-            updatedElaspedDeactivation();
-            chrome.windows.getLastFocused(function (window) {
-                var responseObject = {};
-                responseObject.userStatus = user.loggedIn;
-                responseObject.allTabs = user.tabsSortedByWindow;
-                responseObject.currentWindow = lastFocused;
-                port.postMessage({
-                    sessionInfo: responseObject
-                });
-            })
         } else if (message.type === 'logout') {
             user.logout();
         }

@@ -11,8 +11,6 @@ var inactiveTabCount = 0;
 /**
  * Function called on page load, sets click handlers to DOM, get all the data from extension
  */
-
-document.getElementById('refresh').addEventListener('click', refreshContent);
 document.getElementById('logout').addEventListener('click', logoutUser);
 document.getElementById('title').addEventListener('click', openWebpage);
 document.getElementById('login').addEventListener('click', openWebpage);
@@ -158,21 +156,6 @@ function hideLoginButtons() {
 	document.getElementById("logout").style.display = "block";
 	document.getElementById("login").style.display = "none";
 }
-
-
-/**
- * removes all tabs in dom and sends message to extension to get new tab info
- */
-function refreshContent() {
-	clearTabDOMElements('tab-container');
-	inactiveTabCount = 0;
-	port.postMessage({
-		type: 'refresh'
-	});
-	clearTabDOMElements('tab-container');	
-	showLoadingMessage();
-}
-
 
 /**
  * window will focus the tab that was clicked
